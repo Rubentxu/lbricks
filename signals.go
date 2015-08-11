@@ -1,4 +1,4 @@
-package EngiFlow
+package lbricks
 
 import (
 	"github.com/ajhager/engi"

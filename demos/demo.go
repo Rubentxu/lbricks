@@ -2,19 +2,16 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/Rubentxu/lbricks"
 	"github.com/ajhager/engi"
 	"github.com/trustmaster/goflow"
 )
 
 var (
-	mouseChan chan *MouseSignal
 	imprimir  string
+	mouseChan chan *lbricks.MouseSignal
 )
-
-type MouseSignal struct {
-	posX, posY float32
-	action     engi.Action
-}
 
 type Game struct {
 	*engi.Game
@@ -36,7 +33,7 @@ func (game *Game) Setup() {
 	net := NewGreetingApp()
 	imprimir = "holasss"
 	// We need a channel to talk to it
-	mouseChan = make(chan *MouseSignal)
+	mouseChan = make(chan *lbricks.MouseSignal)
 	net.SetInPort("In", mouseChan)
 	// Run the net
 	flow.RunNet(net)
@@ -56,33 +53,20 @@ func main() {
 }
 
 func (game *Game) Mouse(x, y float32, action engi.Action) {
-	var ms = &MouseSignal{x, y, action}
+	var ms = &lbricks.MouseSignal{x, y, action}
 	mouseChan <- ms
-}
-
-// A component that generates greetings
-type MouseSensor struct {
-	flow.Component                     // component "superclass" embedded
-	Signal         <-chan *MouseSignal // input port
-	ResSignal      chan<- *MouseSignal // output port
-}
-
-func (g *MouseSensor) OnSignal(ms *MouseSignal) {
-	if ms.action == engi.PRESS {
-		g.ResSignal <- ms
-	}
 }
 
 // A component that prints its input on screen
 type Printer struct {
 	flow.Component
-	Line <-chan *MouseSignal // inport
+	Line <-chan *lbricks.MouseSignal // inport
 
 }
 
 // Prints a line when it gets it
-func (p *Printer) OnLine(ms *MouseSignal) {
-	imprimir = fmt.Sprintf("Posicion del MouseX %.f MouseY %.f", ms.posX, ms.posY)
+func (p *Printer) OnLine(ms *lbricks.MouseSignal) {
+	imprimir = fmt.Sprintf("Posicion del MouseX %.f MouseY %.f", ms.PosX, ms.PosY)
 }
 
 // Our greeting network
@@ -95,11 +79,11 @@ func NewGreetingApp() *GreetingApp {
 	n := new(GreetingApp) // creates the object in heap
 	n.InitGraphState()    // allocates memory for the graph
 	// Add processes to the network
-	n.Add(new(MouseSensor), "mouseSensor")
+	n.Add(new(lbricks.MouseSensor), "mouseSensor")
 	n.Add(new(Printer), "printer")
 	// Connect them with a channel
-	n.Connect("mouseSensor", "ResSignal", "printer", "Line")
+	n.Connect("mouseSensor", "Out", "printer", "Line")
 	// Our net has 1 inport mapped to greeter.Name
-	n.MapInPort("In", "mouseSensor", "Signal")
+	n.MapInPort("In", "mouseSensor", "In")
 	return n
 }

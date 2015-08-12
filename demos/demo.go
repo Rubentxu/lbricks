@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/Rubentxu/lbricks"
-	"github.com/ajhager/engi"
+	"github.com/Rubentxu/lbricks/engi"
 	"github.com/trustmaster/goflow"
 )
 
@@ -18,6 +18,7 @@ type Game struct {
 	bot   engi.Drawable
 	batch *engi.Batch
 	font  *engi.Font
+	tick  float64
 }
 
 func (game *Game) Preload() {
@@ -30,6 +31,7 @@ func (game *Game) Setup() {
 	engi.SetBg(0x2d3739)
 	game.bot = engi.Files.Image("bot")
 	game.font = engi.NewGridFont(engi.Files.Image("font"), 20, 20)
+	game.tick = 1.0 / 40.0
 	net := NewGreetingApp()
 	imprimir = "holasss"
 	// We need a channel to talk to it
@@ -38,6 +40,10 @@ func (game *Game) Setup() {
 	// Run the net
 	flow.RunNet(net)
 	// Now we can send some names and see what happens
+
+}
+
+func (g *Game) Update(dt float32) {
 
 }
 

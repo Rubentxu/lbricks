@@ -1,7 +1,7 @@
 package lbricks
 
 import (
-	"github.com/ajhager/engi"
+	"github.com/Rubentxu/lbricks/engi"
 )
 
 type MouseSignal struct {

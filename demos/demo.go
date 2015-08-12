@@ -85,7 +85,7 @@ func NewGreetingApp() *GreetingApp {
 	n := new(GreetingApp) // creates the object in heap
 	n.InitGraphState()    // allocates memory for the graph
 	// Add processes to the network
-	msensor := lbricks.MouseSensor{Event: engi.LEFT_BUTTON_UP}
+	msensor := lbricks.MouseSensor{Event: engi.RIGHT_BUTTON_UP}
 	n.Add(&msensor, "mouseSensor")
 	n.Add(new(Printer), "printer")
 	// Connect them with a channel

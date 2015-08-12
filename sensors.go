@@ -10,11 +10,11 @@ type MouseSensor struct {
 	In             <-chan *MouseSignal // input port
 	Out            chan<- *MouseSignal // output port
 
-	Action engi.Action
+	Event engi.MouseEvent
 }
 
 func (ms *MouseSensor) OnIn(signal *MouseSignal) {
-	if signal.Action == ms.Action {
+	if signal.Event == ms.Event {
 		ms.Out <- signal
 	}
 }
@@ -27,10 +27,6 @@ type KeyboardSensor struct {
 	action  engi.Action
 	keyCode engi.Key
 	allKeys bool
-}
-
-func (ks *KeyboardSensor) NewKeyboardSensor(action engi.Action, keyCode engi.Key) {
-	return
 }
 
 func (ks *KeyboardSensor) OnIn(signal *KeyboardSignal) {

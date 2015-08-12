@@ -7,15 +7,27 @@ package engi
 type Action int
 type Key int
 type Modifier int
+type MouseEvent int
 
 var (
-	MOVE    = Action(0)
-	PRESS   = Action(1)
-	RELEASE = Action(2)
+	PRESS   = Action(0)
+	RELEASE = Action(1)
 	SHIFT   = Modifier(0x0001)
 	CONTROL = Modifier(0x0002)
 	ALT     = Modifier(0x0004)
 	SUPER   = Modifier(0x0008)
+)
+
+var (
+	MOVEMENT           = MouseEvent(0)
+	WHEEL_DOWN         = MouseEvent(1)
+	WHEEL_UP           = MouseEvent(2)
+	RIGHT_BUTTON_DOWN  = MouseEvent(3)
+	RIGHT_BUTTON_UP    = MouseEvent(4)
+	LEFT_BUTTON_DOWN   = MouseEvent(5)
+	LEFT_BUTTON_UP     = MouseEvent(6)
+	MIDDLE_BUTTON_DOWN = MouseEvent(7)
+	MIDDLE_BUTTON_UP   = MouseEvent(8)
 )
 
 var (

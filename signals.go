@@ -5,8 +5,9 @@ import (
 )
 
 type MouseSignal struct {
-	PosX, PosY float32
-	Action     engi.Action
+	PosX, PosY   float32
+	AmountScroll float32
+	Event        engi.MouseEvent
 }
 
 type KeyboardSignal struct {

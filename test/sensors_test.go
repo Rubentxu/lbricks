@@ -16,7 +16,7 @@ func TestMouseInput(t *testing.T) {
 	d.Out = out
 	flow.RunProc(d)
 	for i := 0.0; i < 100000.0; i++ {
-		var ms = &lbricks.MouseSignal{float32(i * 2.0), float32(i * 2.0), engi.PRESS}
+		var ms = &lbricks.MouseSignal{float32(i * 2.0), float32(i * 2.0), 0.0, engi.LEFT_BUTTON_UP}
 		in <- ms
 		i2 := <-out
 		ix2 := i * 2.0

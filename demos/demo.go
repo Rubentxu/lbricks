@@ -58,8 +58,8 @@ func main() {
 	engi.Open("Hello", 1024, 640, false, &Game{})
 }
 
-func (game *Game) Mouse(x, y float32, action engi.Action) {
-	var ms = &lbricks.MouseSignal{x, y, action}
+func (game *Game) Mouse(x, y float32, event engi.MouseEvent) {
+	var ms = &lbricks.MouseSignal{x, y, 0, event}
 	mouseChan <- ms
 }
 
@@ -85,7 +85,7 @@ func NewGreetingApp() *GreetingApp {
 	n := new(GreetingApp) // creates the object in heap
 	n.InitGraphState()    // allocates memory for the graph
 	// Add processes to the network
-	msensor := lbricks.MouseSensor{Action: engi.PRESS}
+	msensor := lbricks.MouseSensor{Event: engi.LEFT_BUTTON_UP}
 	n.Add(&msensor, "mouseSensor")
 	n.Add(new(Printer), "printer")
 	// Connect them with a channel

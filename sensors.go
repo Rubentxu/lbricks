@@ -5,53 +5,75 @@ import (
 	"github.com/trustmaster/goflow"
 )
 
-type TickInChannel interface {
-	OnTick() chan<- *ClockSignal
+type ClockChannel interface {
+	OnStep() chan<- *ClockEvent
 }
 
 type SimpleInChannel interface {
 	OnIn() chan<- interface{} // The writeable end of the channel.
-	Close()                   // Closes the channel. It is an error to write to In() after calling Close().
 }
 
 type SimpleOutChannel interface {
 	OnOut() <-chan interface{} // The readable end of the channel.
 }
 
-type Sensor interface {
+type ISensor interface {
 	SimpleInChannel
 	SimpleOutChannel
-	TickInChannel
+	ClockChannel
+}
+
+type Sensor struct {
+	Step      <-chan *ClockEvent // input port
+	frequency float64
+	elapsedTick float64
+	tickDef     float64
+}
+
+func (s *Sensor) OnStep(event *ClockEvent) {
+	if()
 }
 
 type MouseSensor struct {
-	flow.Component                     // component "superclass" embedded
-	In             <-chan *MouseSignal // input port
-	Out            chan<- *MouseSignal // output port
-
-	Event engi.MouseEvent
+	flow.Component // component "superclass" embedded
+	*Sensor
+	In     <-chan *MouseEvent // input port
+	Out    chan<- *MouseEvent // output port
+	action engi.MouseAction
 }
 
-func (ms *MouseSensor) OnIn(signal *MouseSignal) {
-	if signal.Event == ms.Event {
-		ms.Out <- signal
+func NewMouseSensor(a engi.MouseAction) *KeyboardSensor {
+	return &MouseSensor{action: a}
+}
+
+func (ms *MouseSensor) OnIn(event *MouseEvent) {
+	if event.Action == ms.Action {
+		ms.Out <- event
 	}
 }
 
 type KeyboardSensor struct {
-	flow.Component                        // component "superclass" embedded
-	In             <-chan *KeyboardSignal // input port
-	Out            chan<- *KeyboardSignal // output port
+	flow.Component                       // component "superclass" embedded
+	In             <-chan *KeyboardEvent // input port
+	Out            chan<- *KeyboardEvent // output port
 
-	action  engi.Action
-	keyCode engi.Key
+	action  engi.KeyAction
+	key     engi.Key
 	allKeys bool
 }
 
-func (ks *KeyboardSensor) OnIn(signal *KeyboardSignal) {
+func NewKeyboardSensor() *KeyboardSensor {
+	return &KeyboardSensor{allKeys: true}
+}
+
+func NewKeyboardSensor(a engi.KeyAction, k engi.Key) *KeyboardSensor {
+	return &KeyboardSensor{action: a, key: k, allKeys: false}
+}
+
+func (ks *KeyboardSensor) OnIn(event *KeyboardEvent) {
 	if ks.allKeys {
-		ks.Out <- signal
-	} else if signal.Action == ks.action && signal.Key == ks.keyCode {
-		ks.Out <- signal
+		ks.Out <- event
+	} else if event.Action == ks.action && event.Key == ks.key {
+		ks.Out <- event
 	}
 }

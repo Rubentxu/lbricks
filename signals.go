@@ -4,18 +4,18 @@ import (
 	"github.com/Rubentxu/lbricks/engi"
 )
 
-type ClockSignal struct {
+type ClockEvent struct {
 	time Clock
 }
 
-type MouseSignal struct {
+type MouseEvent struct {
 	PosX, PosY   float32
 	AmountScroll float32
-	Event        engi.MouseEvent
+	Action       engi.MouseAction
 }
 
-type KeyboardSignal struct {
+type KeyboardEvent struct {
 	Key      engi.Key
 	Modifier engi.Modifier
-	Action   engi.Action
+	Action   engi.KeyAction
 }

@@ -11,8 +11,9 @@ import (
 
 type Clock struct {
 	elapsed     float64
-	elapsedTick float64
-	tickDef     float64
+	elapsedStep float64
+	step        float64
+	countStep   int
 	delta       float64
 	fps         float64
 	frames      uint64
@@ -40,10 +41,14 @@ func (c *Clock) Tick() {
 		c.elapsed = math.Mod(c.elapsed, 1)
 		c.frames = 0
 	}
-	if c.elapsedTick >= c.tickDef {
-		c.elapsedTick = math.Mod(c.elapsedTick, c.tickDef)
-
+	if c.elapsed >= float64(c.countStep)*c.step {
+		c.countStep++
+		c.Step()
 	}
+}
+
+func (c *Clock) Step() {
+
 }
 
 func (c *Clock) Delta() float32 {

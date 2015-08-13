@@ -4,6 +4,10 @@ import (
 	"github.com/Rubentxu/lbricks/engi"
 )
 
+type ClockSignal struct {
+	time Clock
+}
+
 type MouseSignal struct {
 	PosX, PosY   float32
 	AmountScroll float32

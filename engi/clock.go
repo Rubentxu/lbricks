@@ -10,17 +10,20 @@ import (
 )
 
 type Clock struct {
-	elapsed float64
-	delta   float64
-	fps     float64
-	frames  uint64
-	start   time.Time
-	frame   time.Time
+	elapsed     float64
+	elapsedTick float64
+	tickDef     float64
+	delta       float64
+	fps         float64
+	frames      uint64
+	start       time.Time
+	frame       time.Time
 }
 
-func NewClock() *Clock {
+func NewClock(tick float64) *Clock {
 	clock := new(Clock)
 	clock.start = time.Now()
+	clock.tickDef = tick
 	clock.Tick()
 	return clock
 }
@@ -36,6 +39,10 @@ func (c *Clock) Tick() {
 		c.fps = float64(c.frames)
 		c.elapsed = math.Mod(c.elapsed, 1)
 		c.frames = 0
+	}
+	if c.elapsedTick >= c.tickDef {
+		c.elapsedTick = math.Mod(c.elapsedTick, c.tickDef)
+
 	}
 }
 

@@ -5,6 +5,25 @@ import (
 	"github.com/trustmaster/goflow"
 )
 
+type TickInChannel interface {
+	OnTick() chan<- *ClockSignal
+}
+
+type SimpleInChannel interface {
+	OnIn() chan<- interface{} // The writeable end of the channel.
+	Close()                   // Closes the channel. It is an error to write to In() after calling Close().
+}
+
+type SimpleOutChannel interface {
+	OnOut() <-chan interface{} // The readable end of the channel.
+}
+
+type Sensor interface {
+	SimpleInChannel
+	SimpleOutChannel
+	TickInChannel
+}
+
 type MouseSensor struct {
 	flow.Component                     // component "superclass" embedded
 	In             <-chan *MouseSignal // input port

@@ -18,7 +18,9 @@ type Responder interface {
 	Type(char rune)
 }
 
-type Game struct{}
+type Game struct {
+	pool EntityPool
+}
 
 func (g *Game) Preload()                               {}
 func (g *Game) Setup()                                 {}

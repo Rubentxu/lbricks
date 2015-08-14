@@ -13,7 +13,6 @@ type Entity struct {
 	tags          string
 	reactiveLogic flow.Graph
 	goalLogic     flow.Graph
-	eventRouter   flow.Component
 }
 
 type EntityPool struct {

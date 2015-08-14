@@ -27,7 +27,8 @@ func NewClock(tick float64) *Clock {
 	clock.tickDef = tick
 	clock.Tick()
 	return clock
-}
+}git status
+git p
 
 func (c *Clock) Tick() {
 	now := time.Now()

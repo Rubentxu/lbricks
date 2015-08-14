@@ -4,8 +4,9 @@ import (
 	"github.com/Rubentxu/lbricks/engi"
 )
 
-type ClockEvent struct {
-	time Clock
+type StepEvent struct {
+	step    float64
+	numStep int
 }
 
 type MouseEvent struct {

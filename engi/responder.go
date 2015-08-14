@@ -11,6 +11,7 @@ type Responder interface {
 	Setup()
 	Close()
 	Update(dt float32)
+	Step(step float64, numStep int)
 	Mouse(x, y float32, action MouseAction)
 	Scroll(amount float32)
 	Key(key Key, modifier Modifier, action KeyAction)
@@ -23,6 +24,7 @@ func (g *Game) Preload()                               {}
 func (g *Game) Setup()                                 {}
 func (g *Game) Close()                                 {}
 func (g *Game) Update(dt float32)                      {}
+func (g *Game) Step(step float64, numStep int)         {}
 func (g *Game) Render()                                {}
 func (g *Game) Resize(w, h int)                        {}
 func (g *Game) Mouse(x, y float32, action MouseAction) {}

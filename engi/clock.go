@@ -13,7 +13,7 @@ type Clock struct {
 	elapsed     float64
 	elapsedStep float64
 	step        float64
-	countStep   int
+	numStep     int
 	delta       float64
 	fps         float64
 	frames      uint64
@@ -40,15 +40,12 @@ func (c *Clock) Tick() {
 		c.fps = float64(c.frames)
 		c.elapsed = math.Mod(c.elapsed, 1)
 		c.frames = 0
+		c.numStep = 0
 	}
-	if c.elapsed >= float64(c.countStep)*c.step {
-		c.countStep++
-		c.Step()
+	if (c.elapsed / c.step) >= c.numStep {
+		c.numStep++
+		responder.Step(c.step, c.numStep)
 	}
-}
-
-func (c *Clock) Step() {
-
 }
 
 func (c *Clock) Delta() float32 {

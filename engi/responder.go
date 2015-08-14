@@ -12,6 +12,7 @@ type Responder interface {
 	Close()
 	Update(dt float32)
 	Step(step float64, numStep int)
+	PoolChanged(entity)
 	Mouse(x, y float32, action MouseAction)
 	Scroll(amount float32)
 	Key(key Key, modifier Modifier, action KeyAction)

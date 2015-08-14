@@ -6,26 +6,34 @@ import (
 	"github.com/trustmaster/goflow"
 )
 
-type Entity func(graph *flow.Graph) *flow.Graph
+type Provider func(graph *flow.Graph) *Entity
+
+type Entity struct {
+	id            int
+	tags          string
+	reactiveLogic flow.Graph
+	goalLogic     flow.Graph
+	eventRouter   flow.Component
+}
 
 type EntityPool struct {
-	entities        map[int]*flow.Graph
-	entityFactories map[string]Entity
+	entities  map[int]*Entity
+	providers map[string]Provider
 }
 
 func CreatePool() *EntityPool {
-	entities = make(map[int]*flow.Graph)
-	entityFactories = make(map[string]Entity)
+	entities = make(map[int]*Entity)
+	providers = make(map[string]Provider)
 	return &EntityPool{entities, entityFactories}
 }
 
-func (e *EntityPool) createEntity(name string) *flow.Graph {
+func (e *EntityPool) createEntity(name string) *Entity {
 	graph := initEntity()
-	entity, ok := entities[name]
+	provider, ok := e.providers[name]
 	if !ok {
 		panic(fmt.Sprintf("%s entity does not exist", name))
 	}
-	return entity(graph)
+	return provider(graph)
 }
 
 func (e *EntityPool) initEntity() *flow.Graph {

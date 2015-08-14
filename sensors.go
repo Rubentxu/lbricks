@@ -24,6 +24,7 @@ type ISensor interface {
 }
 
 type Sensor struct {
+	name string	
 	Step      <-chan *ClockEvent // input port
 	frequency float64
 	elapsedTick float64

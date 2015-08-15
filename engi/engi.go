@@ -15,7 +15,7 @@ var (
 
 func Open(title string, width, height int, fullscreen bool, r Responder) {
 	responder = r
-	Time = NewClock()
+	Time = NewClock(1 / 60)
 	Files = NewLoader()
 	run(title, width, height, fullscreen)
 }

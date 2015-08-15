@@ -18,7 +18,6 @@ import (
 
 	"azul3d.org/native/glfw.v4"
 	"github.com/ajhager/webgl"
-	"github.com/go-gl/gl/v2.1/gl"
 )
 
 var window *glfw.Window

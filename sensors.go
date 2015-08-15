@@ -24,11 +24,10 @@ type ISensor interface {
 }
 
 type Sensor struct {
-	name string	
+	name string
+	Type string
 	Step      <-chan *ClockEvent // input port
-	frequency float64
-	elapsedTick float64
-	tickDef     float64
+	frequency int
 }
 
 func (s *Sensor) OnStep(event *ClockEvent) {
@@ -43,8 +42,8 @@ type MouseSensor struct {
 	action engi.MouseAction
 }
 
-func NewMouseSensor(a engi.MouseAction) *KeyboardSensor {
-	return &MouseSensor{action: a}
+func NewMouseSensor(n string, f int,a engi.MouseAction) *MouseSensor {
+	return &MouseSensor{name: n, Type: "MouseSensor" frequency : f, action: a}
 }
 
 func (ms *MouseSensor) OnIn(event *MouseEvent) {

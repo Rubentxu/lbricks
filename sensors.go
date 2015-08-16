@@ -5,8 +5,12 @@ import (
 	"github.com/trustmaster/goflow"
 )
 
+type Type interface {
+	Type() string
+}
+
 type ClockChannel interface {
-	OnStep() chan<- *ClockEvent
+	OnCompleteStep() chan<- *ClockEvent
 }
 
 type SimpleInChannel interface {
@@ -17,28 +21,47 @@ type SimpleOutChannel interface {
 	OnOut() <-chan interface{} // The readable end of the channel.
 }
 
-type ISensor interface {
+type Sensor interface {
+	Type
 	SimpleInChannel
 	SimpleOutChannel
 	ClockChannel
+
 }
 
-type Sensor struct {
+type SensorBase struct {
+	flow.Component
 	name string
-	Type string
-	Step      <-chan *ClockEvent // input port
+	sensorType string
+	eventType string
+	Step   <-chan *Event // input port
+	In     <-chan *Event // input port
+	Out    chan<- *Event // output port
 	frequency int
 }
 
-func (s *Sensor) OnStep(event *ClockEvent) {
-	if()
+func (s *SensorBase) Name() string {
+	return s.name
+}
+
+func (s *SensorBase) Type() string {
+	return s.sensorType
+}
+
+func (s *SensorBase) EventType() string {
+	return s.eventType
+}
+
+func (s *SensorBase) Frequency() string {
+	return s.frequency
+}
+
+func (s *SensorBase) OnCompleteStep() chan<- *ClockEvent {
+
 }
 
 type MouseSensor struct {
-	flow.Component // component "superclass" embedded
-	*Sensor
-	In     <-chan *MouseEvent // input port
-	Out    chan<- *MouseEvent // output port
+	*SensorBase
 	action engi.MouseAction
 }
 
@@ -53,7 +76,7 @@ func (ms *MouseSensor) OnIn(event *MouseEvent) {
 }
 
 type KeyboardSensor struct {
-	flow.Component                       // component "superclass" embedded
+	*SensorBase                    // component "superclass" embedded
 	In             <-chan *KeyboardEvent // input port
 	Out            chan<- *KeyboardEvent // output port
 

@@ -7,65 +7,66 @@ import (
 
 type broadcast struct {
 	c chan broadcast
-	v interface{}
+	v Event
 }
 
 type Broadcaster struct {
-	// private fields:
-	ListenInt    chan chan (chan broadcast)
-	ListenString chan chan (chan broadcast)
-	Sendc        chan<- interface{}
+	ListenMouseEvent    chan chan (chan broadcast)
+	ListenKeyboardEvent chan chan (chan broadcast)
+	Send                chan<- Event
 }
 
 // create a new broadcaster object.
 func NewBroadcaster() Broadcaster {
-	listenMouse := make(chan (chan (chan broadcast)))
-	listenKeyboard := make(chan (chan (chan broadcast)))
-	sendc := make(chan interface{})
+	listenMouseEvent := make(chan (chan (chan broadcast)))
+	listenKeyboardEvent := make(chan (chan (chan broadcast)))
+	send := make(chan Event)
 	go func() {
 		currc := make(chan broadcast, 1)
 		for {
 			select {
-			case v := <-sendc:
+			case v := <-send:
 				c := make(chan broadcast, 1)
 				b := broadcast{c: c, v: v}
 				currc <- b
 				currc = c
-			case r := <-listenMouse:
-				r <- currc
-			case r := <-listenKeyboard:
-				r <- currc
+			case m := <-listenMouseEvent:
+				m <- currc
+			case k := <-listenKeyboardEvent:
+				k <- currc
 			}
 		}
 	}()
 	return Broadcaster{
-		ListenInt:    listenInt,
-		ListenString: listenString,
-		Sendc:        sendc,
+		ListenMouseEvent:    listenMouseEvent,
+		ListenKeyboardEvent: listenKeyboardEvent,
+		Send:                send,
 	}
 }
 
 // start listening to the broadcasts.
-func (b Broadcaster) Listen(sensor Sensor) {
+func (b Broadcaster) Register(sensor Sensor) {
 	c := make(chan chan broadcast, 0)
-	if tipo == 1 {
-		b.ListenInt <- c
-	} else if tipo == 2 {
-		b.ListenString <- c
+
+	switch sensor.Type {
+	case "MouseSensor":
+		b.ListenMouseEvent <- c
+	case "KeyboardSensor":
+		b.ListenKeyboardEvent <- c
 	}
-	rv := Receiver{<-c, tipo}
+	rv := Receiver{<-c, sensor}
 	go rv.listen()
 }
 
 // broadcast a value to all listeners.
-func (b Broadcaster) Write(v interface{}) { b.Sendc <- v }
+func (b Broadcaster) Write(v Event) { b.Send <- v }
 
 type Receiver struct {
-	C    chan broadcast
-	Tipo int
+	C      chan broadcast
+	sensor Sensor
 }
 
-func (r *Receiver) Read() interface{} {
+func (r *Receiver) Read() Event {
 	b := <-r.C
 	v := b.v
 	r.C <- b
@@ -74,13 +75,8 @@ func (r *Receiver) Read() interface{} {
 }
 
 func (r *Receiver) listen() {
-	for v := r.Read(); v != nil; v = r.Read() {
-		if r.Tipo == 1 {
-			fmt.Println(v)
-
-		} else {
-			fmt.Sprintf("Tipo excluido %d", r.Tipo)
-		}
+	for v := r.Read(); r.sensor.EventType == v.Type; v = r.Read() {
+		r.sensor.In <- &v
 	}
 }
 

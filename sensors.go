@@ -10,7 +10,7 @@ type Type interface {
 }
 
 type ClockChannel interface {
-	OnCompleteStep() chan<- *ClockEvent
+	OnCompleteStep() chan<- *StepEvent
 }
 
 type SimpleInChannel interface {
@@ -26,18 +26,18 @@ type Sensor interface {
 	SimpleInChannel
 	SimpleOutChannel
 	ClockChannel
-
+	EventType() string
 }
 
 type SensorBase struct {
 	flow.Component
-	name string
+	name       string
 	sensorType string
-	eventType string
-	Step   <-chan *Event // input port
-	In     <-chan *Event // input port
-	Out    chan<- *Event // output port
-	frequency int
+	eventType  string
+	Step       <-chan Event // input port
+	In         <-chan Event // input port
+	Out        chan<- Event // output port
+	frequency  int
 }
 
 func (s *SensorBase) Name() string {
@@ -52,12 +52,12 @@ func (s *SensorBase) EventType() string {
 	return s.eventType
 }
 
-func (s *SensorBase) Frequency() string {
+func (s *SensorBase) Frequency() int {
 	return s.frequency
 }
 
-func (s *SensorBase) OnCompleteStep() chan<- *ClockEvent {
-
+func (s *SensorBase) OnCompleteStep() chan<- *StepEvent {
+	return nil
 }
 
 type MouseSensor struct {
@@ -65,20 +65,23 @@ type MouseSensor struct {
 	action engi.MouseAction
 }
 
-func NewMouseSensor(n string, f int,a engi.MouseAction) *MouseSensor {
-	return &MouseSensor{name: n, Type: "MouseSensor" frequency : f, action: a}
+func NewMouseSensor(n string, f int, a engi.MouseAction) *MouseSensor {
+	sensor := new(MouseSensor)
+	sensor.name = n
+	sensor.sensorType = "MouseSensor"
+	return sensor
 }
 
 func (ms *MouseSensor) OnIn(event *MouseEvent) {
-	if event.Action == ms.Action {
+	if event.Action == ms.action {
 		ms.Out <- event
 	}
 }
 
 type KeyboardSensor struct {
-	*SensorBase                    // component "superclass" embedded
-	In             <-chan *KeyboardEvent // input port
-	Out            chan<- *KeyboardEvent // output port
+	*SensorBase                       // component "superclass" embedded
+	In          <-chan *KeyboardEvent // input port
+	Out         chan<- *KeyboardEvent // output port
 
 	action  engi.KeyAction
 	key     engi.Key
@@ -89,7 +92,7 @@ func NewKeyboardSensor() *KeyboardSensor {
 	return &KeyboardSensor{allKeys: true}
 }
 
-func NewKeyboardSensor(a engi.KeyAction, k engi.Key) *KeyboardSensor {
+func NewKeyboardSensor2(a engi.KeyAction, k engi.Key) *KeyboardSensor {
 	return &KeyboardSensor{action: a, key: k, allKeys: false}
 }
 

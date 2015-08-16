@@ -1,10 +1,5 @@
 package lbricks
 
-import (
-	"fmt"
-	"time"
-)
-
 type broadcast struct {
 	c chan broadcast
 	v Event
@@ -48,7 +43,7 @@ func NewBroadcaster() Broadcaster {
 func (b Broadcaster) Register(sensor Sensor) {
 	c := make(chan chan broadcast, 0)
 
-	switch sensor.Type {
+	switch sensor.Type() {
 	case "MouseSensor":
 		b.ListenMouseEvent <- c
 	case "KeyboardSensor":
@@ -75,21 +70,7 @@ func (r *Receiver) Read() Event {
 }
 
 func (r *Receiver) listen() {
-	for v := r.Read(); r.sensor.EventType == v.Type; v = r.Read() {
+	for v := r.Read(); r.sensor.EventType() == v.Type(); v = r.Read() {
 		r.sensor.In <- &v
 	}
-}
-
-func main() {
-	var b = NewBroadcaster()
-	b.Listen(1)
-	b.Listen(2)
-	b.Listen(2)
-
-	for i := 0; i < 10; i++ {
-		b.Write(fmt.Sprintf("Valor %d", i))
-	}
-	b.Write(nil)
-
-	time.Sleep(3 * 1e9)
 }

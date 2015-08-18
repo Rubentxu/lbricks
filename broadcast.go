@@ -39,6 +39,7 @@ func NewBroadcaster() Broadcaster {
 	}
 }
 
+
 // start listening to the broadcasts.
 func (b Broadcaster) Register(sensor Sensor) {
 	c := make(chan chan broadcast, 0)

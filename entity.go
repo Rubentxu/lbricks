@@ -12,6 +12,17 @@ type GraphPool struct {
 	providers map[string]GraphProvider
 }
 
+func CreateGraphPool() *GraphPool {
+	providers := make(map[string]GraphProvider)
+	return &GraphPool{providers}
+}
+
+func (gp *GraphPool) AddProvider(name string, provider GraphProvider) {
+	if _, ok := gp.providers[name]; !ok {
+		gp.providers[name] = provider
+	}
+}
+
 func (gp *GraphPool) CreateLogicGraph(name string) (*flow.Graph, map[string]chan *Event) {
 	graph := new(flow.Graph)
 	graph.InitGraphState()
@@ -22,16 +33,7 @@ func (gp *GraphPool) CreateLogicGraph(name string) (*flow.Graph, map[string]chan
 	return provider(graph)
 }
 
-func (gp *GraphPool) AddProvider(name string, provider GraphProvider) {
-	if _, ok := gp.providers[name]; !ok {
-		gp.providers[name] = provider
-	}
-}
 
-func CreateGraphPool() *GraphPool {
-	providers := make(map[string]GraphProvider)
-	return &GraphPool{providers}
-}
 
 type Entity struct {
 	id          int

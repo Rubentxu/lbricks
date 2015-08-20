@@ -4,33 +4,35 @@ import (
 	"github.com/Rubentxu/lbricks/engi"
 )
 
-type Event interface {
-	Type
+type EventPacket struct {
+	event *Event
+	Code  int
+	Data  interface{}
 }
 
-type EventBase struct {
+type Event struct {
 	eventType string
 }
 
-func (e *EventBase) Type() string {
+func (e *Event) Type() string {
 	return e.eventType
 }
 
 type StepEvent struct {
-	*EventBase
+	*Event
 	step    float64
 	numStep int
 }
 
 type MouseEvent struct {
-	*EventBase
+	*Event
 	PosX, PosY   float32
 	AmountScroll float32
 	Action       engi.MouseAction
 }
 
 type KeyboardEvent struct {
-	*EventBase
+	*Event
 	Key      engi.Key
 	Modifier engi.Modifier
 	Action   engi.KeyAction

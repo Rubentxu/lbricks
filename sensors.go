@@ -18,9 +18,9 @@ type SensorBase struct {
 	name       string
 	sensorType string
 	eventType  string
-	Step       <-chan Event // input port
-	In         <-chan Event // input port
-	Out        chan<- Event // output port
+	Step       <-chan EventPacked // input port
+	In         <-chan EventPacked // input port
+	Out        chan<- EventPacked // output port
 	frequency  int
 }
 
@@ -53,6 +53,8 @@ func NewMouseSensor(n string, f int, a engi.MouseAction) *MouseSensor {
 	sensor := new(MouseSensor)
 	sensor.name = n
 	sensor.sensorType = "MouseSensor"
+	sensor.eventType = "MouseEvent"
+	sensor.frequency = f
 	return sensor
 }
 

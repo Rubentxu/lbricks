@@ -6,9 +6,10 @@ import (
 	"github.com/trustmaster/goflow"
 )
 
-type EntityProvider func(graphPool GraphPool) (*Entity, []*Sensor)
+type EntityProvider func(graphPool GraphPool) (*Entity, map[string]chan *EventPacked)
 type GraphProvider func() (*flow.Graph, map[string]chan *EventPacked)
-type ComponentProvider func(graph *flow.Graph)
+//type ComponentProvider func() interface{}
+//type SensorProvider func(graph *flow.Graph) *Sensor
 
 type Entity struct {
 	id          int
@@ -49,10 +50,6 @@ func (ep *EntityPool) AddProvider(name string, provider EntityProvider) {
 	}
 }
 
-func (ep *EntityPool) RegisterSensors(sensors []*Sensor) {
-
-}
-
 func CreateEntityPool() *EntityPool {
 	entities := make(map[int]*Entity)
 	providers := make(map[string]EntityProvider)
@@ -82,17 +79,3 @@ func (gp *GraphPool) CreateLogicGraph(name string) (*flow.Graph, map[string]chan
 	}
 	return provider()
 }
-
-
-/*func (e *EntityPool) initGraphEntity() *flow.Graph {
-	n := new(flow.Graph) // creates the object in heap
-	n.InitGraphState()   // allocates memory for the graph
-	// Add processes to the network
-	//n.Add(new(Greeter), "greeter")
-	//n.Add(new(Printer), "printer")
-	// Connect them with a channel
-	n.Connect("greeter", "Res", "printer", "Line")
-	// Our net has 1 inport mapped to greeter.Name
-	n.MapInPort("In", "greeter", "Name")
-	return n
-}*/

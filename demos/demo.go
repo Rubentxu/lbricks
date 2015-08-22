@@ -10,11 +10,10 @@ import (
 
 var (
 	imprimir  string
-	mouseChan chan *lbricks.MouseSignal
 )
 
 type Game struct {
-	*engi.Game
+	*lbricks.Game
 	bot   engi.Drawable
 	batch *engi.Batch
 	font  *engi.Font
@@ -32,14 +31,12 @@ func (game *Game) Setup() {
 	game.bot = engi.Files.Image("bot")
 	game.font = engi.NewGridFont(engi.Files.Image("font"), 20, 20)
 	game.tick = 1.0 / 40.0
-	net := NewGreetingApp()
+	game.Pool := CreateEntityPool()
+	game.Pool.AddProvider("DemoEntity", DemoEntityProvider)
+	game.Pool.AddProvider(name string, provider GraphProvider)
 	imprimir = "holasss"
-	// We need a channel to talk to it
-	mouseChan = make(chan *lbricks.MouseSignal)
-	net.SetInPort("In", mouseChan)
-	// Run the net
+
 	flow.RunNet(net)
-	// Now we can send some names and see what happens
 
 }
 
@@ -55,12 +52,7 @@ func (game *Game) Render() {
 }
 
 func main() {
-	engi.Open("Hello", 1024, 640, false, &Game{})
-}
-
-func (game *Game) Mouse(x, y float32, event engi.MouseEvent) {
-	var ms = &lbricks.MouseSignal{x, y, 0, event}
-	mouseChan <- ms
+	engi.Open("Demo", 800, 600, false, &Game{})
 }
 
 // A component that prints its input on screen
@@ -75,22 +67,23 @@ func (p *Printer) OnLine(ms *lbricks.MouseSignal) {
 	imprimir = fmt.Sprintf("Posicion del MouseX %.f MouseY %.f", ms.PosX, ms.PosY)
 }
 
-// Our greeting network
-type GreetingApp struct {
-	flow.Graph // graph "superclass" embedded
+func DemoEntityProvider(pool GraphPool) (*Entity, map[string]chan *EventPacked){
+
 }
 
-// Graph constructor and structure definition
-func NewGreetingApp() *GreetingApp {
-	n := new(GreetingApp) // creates the object in heap
-	n.InitGraphState()    // allocates memory for the graph
-	// Add processes to the network
-	msensor := lbricks.MouseSensor{Event: engi.RIGHT_BUTTON_UP}
-	n.Add(&msensor, "mouseSensor")
+func NewDemoGraphProvider() (*flow.Graph, map[string]chan *EventPacked) {
+	n := new(flow.Graph) // creates the object in heap
+	n.InitGraphState()    // allocates me(*flow.Graph, map[string]chan *EventPacked)mory for the graph
+
+	msensor := NewMouseSensor("mouseButtonUp", 1, engi.RIGHT_BUTTON_UP)
+	n.Add(msensor, "mouseSensor")
 	n.Add(new(Printer), "printer")
-	// Connect them with a channel
 	n.Connect("mouseSensor", "Out", "printer", "Line")
-	// Our net has 1 inport mapped to greeter.Name
-	n.MapInPort("In", "mouseSensor", "In")
-	return n
+
+	inputs := make(map(string)chan *EventPacked)
+	inputs["InMouseButtonUp"]= make(chan *RequestPacket)
+	n.MapInPort("InMouseButtonUp", "mouseSensor", "In")
+	net.SetInPort("InMouseButtonUp", inputs["InMouseButtonUp"])
+	return n,inputs
+
 }

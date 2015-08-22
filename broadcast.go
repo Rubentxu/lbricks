@@ -39,7 +39,6 @@ func NewBroadcaster() Broadcaster {
 	}
 }
 
-
 // start listening to the broadcasts.
 func (b Broadcaster) Register(sensor Sensor) {
 	c := make(chan chan broadcast, 0)
@@ -72,6 +71,6 @@ func (r *Receiver) Read() Event {
 
 func (r *Receiver) listen() {
 	for v := r.Read(); r.sensor.EventType() == v.Type(); v = r.Read() {
-		r.sensor.In <- &v
+		r.sensor.OnIn(v)
 	}
 }

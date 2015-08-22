@@ -5,22 +5,6 @@ import (
 	"github.com/trustmaster/goflow"
 )
 
-type Type interface {
-	Type() string
-}
-
-type ClockChannel interface {
-	OnCompleteStep() chan<- *StepEvent
-}
-
-type SimpleInChannel interface {
-	OnIn(event Event) chan<- interface{} // The writeable end of the channel.
-}
-
-type SimpleOutChannel interface {
-	OnOut(event Event) <-chan interface{} // The readable end of the channel.
-}
-
 type Sensor interface {
 	Type
 	SimpleInChannel
@@ -33,7 +17,7 @@ type SensorBase struct {
 	flow.Component
 	name       string
 	sensorType string
-	eventType  EventType
+	eventType  string
 	Step       <-chan Event // input port
 	In         <-chan Event // input port
 	Out        chan<- Event // output port
@@ -82,10 +66,9 @@ type KeyboardSensor struct {
 	*SensorBase                       // component "superclass" embedded
 	In          <-chan *KeyboardEvent // input port
 	Out         chan<- *KeyboardEvent // output port
-
-	action  engi.KeyAction
-	key     engi.Key
-	allKeys bool
+	action      engi.KeyAction
+	key         engi.Key
+	allKeys     bool
 }
 
 func NewKeyboardSensor() *KeyboardSensor {

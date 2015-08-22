@@ -5,28 +5,39 @@ import (
 )
 
 type EventPacket struct {
-	Code  int
-	event interface{}
+	Code int
+	Data *Event
 }
 
-type EventType string
+type Event interface {
+	Type
+}
 
 type StepEvent struct {
-	eventType EventType
-	step      float64
-	numStep   int
+	step    float64
+	numStep int
+}
+
+func (e *StepEvent) Type() {
+	return "StepEvent"
 }
 
 type MouseEvent struct {
-	eventType    EventType
 	PosX, PosY   float32
 	AmountScroll float32
 	Action       engi.MouseAction
 }
 
+func (e *MouseEvent) Type() {
+	return "MouseEvent"
+}
+
 type KeyboardEvent struct {
-	eventType EventType
-	Key       engi.Key
-	Modifier  engi.Modifier
-	Action    engi.KeyAction
+	Key      engi.Key
+	Modifier engi.Modifier
+	Action   engi.KeyAction
+}
+
+func (e *KeyboardEvent) Type() {
+	return "KeyboardEvent"
 }

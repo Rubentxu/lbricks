@@ -10,15 +10,15 @@ type Type interface {
 }
 
 type ClockChannel interface {
-	OnCompleteStep() chan<- *EventPacket
+	OnCompleteStep() chan<- *StepEvent
 }
 
 type SimpleInChannel interface {
-	OnIn() chan *EventPacket // The writeable end of the channel.
+	OnIn(event Event) chan<- interface{} // The writeable end of the channel.
 }
 
 type SimpleOutChannel interface {
-	OnOut() chan<- *EventPacket // The readable end of the channel.
+	OnOut(event Event) <-chan interface{} // The readable end of the channel.
 }
 
 type Sensor interface {
@@ -33,10 +33,10 @@ type SensorBase struct {
 	flow.Component
 	name       string
 	sensorType string
-	eventType  string
-	Step       <-chan EventPacket // input port
-	In         <-chan EventPacket // input port
-	Out        chan<- Event       // output port
+	eventType  EventType
+	Step       <-chan Event // input port
+	In         <-chan Event // input port
+	Out        chan<- Event // output port
 	frequency  int
 }
 
@@ -56,7 +56,7 @@ func (s *SensorBase) Frequency() int {
 	return s.frequency
 }
 
-func (s *SensorBase) OnCompleteStep() chan<- *EventPacket {
+func (s *SensorBase) OnCompleteStep() chan<- *StepEvent {
 	return nil
 }
 

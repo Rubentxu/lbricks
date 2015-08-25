@@ -6,30 +6,25 @@ import (
 )
 
 type Sensor interface {
-	Type
 	SimpleInChannel
 	SimpleOutChannel
 	ClockChannel
 	EventType() string
 }
 
+/* SensorBase */
 type SensorBase struct {
 	flow.Component
-	name       string
-	sensorType string
-	eventType  string
-	Step       <-chan EventPacked // input port
-	In         <-chan EventPacked // input port
-	Out        chan<- EventPacked // output port
-	frequency  int
+	name      string
+	eventType string
+	Step      <-chan EventPacked // input port
+	In        <-chan EventPacked // input port
+	Out       chan<- EventPacked // output port
+	frequency int
 }
 
 func (s *SensorBase) Name() string {
 	return s.name
-}
-
-func (s *SensorBase) Type() string {
-	return s.sensorType
 }
 
 func (s *SensorBase) EventType() string {
@@ -44,6 +39,7 @@ func (s *SensorBase) OnCompleteStep() chan<- *StepEvent {
 	return nil
 }
 
+/* MouseSensor */
 type MouseSensor struct {
 	*SensorBase
 	action engi.MouseAction
@@ -64,6 +60,7 @@ func (ms *MouseSensor) OnIn(event *MouseEvent) {
 	}
 }
 
+// KeyboardSensor
 type KeyboardSensor struct {
 	*SensorBase                       // component "superclass" embedded
 	In          <-chan *KeyboardEvent // input port

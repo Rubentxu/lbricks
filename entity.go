@@ -1,16 +1,20 @@
-package engi
+package lbricks
 
 import (
 	"fmt"
-
 	"github.com/trustmaster/goflow"
 )
+
 
 type EntityProvider func(graphPool GraphPool) (*Entity, map[string]chan *EventPacked)
 type GraphProvider func() (*flow.Graph, map[string]chan *EventPacked)
 //type ComponentProvider func() interface{}
 //type SensorProvider func(graph *flow.Graph) *Sensor
 
+
+
+
+// Entity
 type Entity struct {
 	id          int
 	Tags        string
@@ -21,11 +25,22 @@ func (e *Entity) Id() int {
 	return e.id
 }
 
+
+
+
+// EntityPool
 type EntityPool struct {
 	idCount   uint64
 	entities  map[int]*Entity
 	providers map[string]EntityProvider
 	graphPool *GraphPool
+}
+
+func CreateEntityPool() *EntityPool {
+	entities := make(map[int]*Entity)
+	providers := make(map[string]EntityProvider)
+	graphPool := CreateGraphPool()
+	return &EntityPool{entities, providers, graphPool}
 }
 
 func (ep *EntityPool) CreateEntity(name string) *Entity {
@@ -50,13 +65,10 @@ func (ep *EntityPool) AddProvider(name string, provider EntityProvider) {
 	}
 }
 
-func CreateEntityPool() *EntityPool {
-	entities := make(map[int]*Entity)
-	providers := make(map[string]EntityProvider)
-	graphPool := CreateGraphPool()
-	return &EntityPool{entities, providers, graphPool}
-}
 
+
+
+// GraphPool
 type GraphPool struct {
 	providers map[string]GraphProvider
 }

@@ -6,13 +6,10 @@ import (
 
 type EventPacket struct {
 	Code int
-	Data *Event
+	Data interface{}
 }
 
-type Event interface {
-	Type
-}
-
+// StepEvent
 type StepEvent struct {
 	step    float64
 	numStep int
@@ -22,6 +19,7 @@ func (e *StepEvent) Type() {
 	return "StepEvent"
 }
 
+// MouseEvent
 type MouseEvent struct {
 	PosX, PosY   float32
 	AmountScroll float32
@@ -32,6 +30,7 @@ func (e *MouseEvent) Type() {
 	return "MouseEvent"
 }
 
+// KeyboardEvent
 type KeyboardEvent struct {
 	Key      engi.Key
 	Modifier engi.Modifier

@@ -28,7 +28,7 @@ func (g *Game) Resize(w, h int)                        {}
 func (g *Game) Mouse(x, y float32, action MouseAction) {
 	eventPacked := &EventPacked{1,&MouseEvent{x,y,0.0,action}}
 	for _, e := range g.mouseChan {
-    e <- eventPacked
+    	e <- eventPacked
  	}
 }
 
@@ -40,7 +40,7 @@ func (g *Game) Key(key Key, modifier Modifier, action KeyAction) {
 	}
 	eventPacked := &EventPacked{1,&KeyboardEvent{key,modifier,action}}
 	for _, e := range g.keyboardChan {
-    e <- eventPacked
+    	e <- eventPacked
  	}
 }
 

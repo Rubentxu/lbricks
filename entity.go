@@ -6,7 +6,7 @@ import (
 )
 
 
-type EntityProvider func(graphPool GraphPool) (*Entity, map[string]chan *EventPacked)
+type EntityProvider func(graphPool *GraphPool) (*Entity, map[string]chan *EventPacked)
 type GraphProvider func() (*flow.Graph, map[string]chan *EventPacked)
 //type ComponentProvider func() interface{}
 //type SensorProvider func(graph *flow.Graph) *Sensor
@@ -54,7 +54,7 @@ type EntityPool struct {
 	graphPool GraphPool
 }
 
-func CreateEntityPool() *EntityPool {
+func CreateEntityPool(graphPool *GraphPool) *EntityPool {
 	entities := make(map[int]*Entity)
 	providers := make(map[string]EntityProvider)
 	graphPool := CreateGraphPool()

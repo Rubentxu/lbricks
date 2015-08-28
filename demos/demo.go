@@ -52,7 +52,9 @@ func (game *Game) Render() {
 }
 
 func main() {
-	engi.Open("Demo", 800, 600, false, &Game{})
+	game:= &Game{}
+	game.InitContext()
+	engi.Open("Demo", 800, 600, false, game.EventSystem)
 }
 
 // A component that prints its input on screen

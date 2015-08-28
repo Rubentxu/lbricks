@@ -1,12 +1,12 @@
 package lbricks
 
 type Game struct {
-	Pool *EntityPool
-	mouseChan []chan *EventPacked
-	keyboardChan []chan *EventPacked
+	Pool 			EntityPool
+	mouseChan 		[]chan *EventPacked
+	keyboardChan 	[]chan *EventPacked
 }
 
-func (g *Game) registerInputChannel(eventType string, channel chan *EventPacked) {
+func (g *Game) RegisterInputChannel(eventType string, channel chan *EventPacked) {
 	switch eventType {
 	case "MouseEvent":
 		append(mouseChan, channel)

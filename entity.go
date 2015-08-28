@@ -13,16 +13,33 @@ type GraphProvider func() (*flow.Graph, map[string]chan *EventPacked)
 
 
 
+type EntityID uint
 
 // Entity
 type Entity struct {
-	id          int
-	Tags        string
-	logicGraphs map[string]*flow.Graph
+	id          EntityID
+	logicGraphs map[string]flow.Graph
 }
 
 func (e *Entity) Id() int {
 	return e.id
+}
+
+func (e *Entity) HasLogicGraph(name string) bool {
+	 _, ok := e.logicGraphs[name]
+	 return ok
+}
+
+func (e *Entity) AddLogicGraph( name string, graph flow.Graph) bool {
+	if !e.HasLogicGraph(name) {
+		e.logicGraphs[name] = graph
+		return true
+	} 
+	return false
+}
+
+func (e *Entity) GetLogicGraph(name string) (*flow.Graph, bool) {
+	 return elem, ok := e.logicGraphs[name]
 }
 
 
@@ -32,8 +49,9 @@ func (e *Entity) Id() int {
 type EntityPool struct {
 	idCount   uint64
 	entities  map[int]*Entity
+	unused    []Entity
 	providers map[string]EntityProvider
-	graphPool *GraphPool
+	graphPool GraphPool
 }
 
 func CreateEntityPool() *EntityPool {

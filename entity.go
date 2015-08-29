@@ -6,11 +6,10 @@ import (
 )
 
 
-type EntityProvider func(graphPool *GraphPool) (*Entity, map[string]chan *EventPacked)
-type GraphProvider func() (*flow.Graph, map[string]chan *EventPacked)
+type EntityProvider func(graphPool *GraphPool) (*Entity, map[string]chan *EventPacket)
+type GraphProvider func() (*flow.Graph, map[string]chan *EventPacket)
 //type ComponentProvider func() interface{}
 //type SensorProvider func(graph *flow.Graph) *Sensor
-
 
 
 type EntityID uint
@@ -26,20 +25,21 @@ func (e *Entity) Id() int {
 }
 
 func (e *Entity) HasLogicGraph(name string) bool {
-	 _, ok := e.logicGraphs[name]
-	 return ok
+	_, ok := e.logicGraphs[name]
+	return ok
 }
 
-func (e *Entity) AddLogicGraph( name string, graph flow.Graph) bool {
+func (e *Entity) AddLogicGraph(name string, graph flow.Graph) bool {
 	if !e.HasLogicGraph(name) {
 		e.logicGraphs[name] = graph
 		return true
-	} 
+	}
 	return false
 }
 
 func (e *Entity) GetLogicGraph(name string) (*flow.Graph, bool) {
-	 return elem, ok := e.logicGraphs[name]
+	elem, ok := e.logicGraphs[name]
+	return elem, ok
 }
 
 
@@ -57,18 +57,19 @@ type EntityPool struct {
 func CreateEntityPool(graphPool *GraphPool) *EntityPool {
 	entities := make(map[int]*Entity)
 	providers := make(map[string]EntityProvider)
-	graphPool := CreateGraphPool()
 	return &EntityPool{entities, providers, graphPool}
 }
 
-func (ep *EntityPool) CreateEntity(name string) *Entity {
+func (ep *EntityPool) CreateEntity(name string) (*Entity, map[string]chan *EventPacket) {
 	provider, ok := ep.providers[name]
 	if !ok {
 		panic(fmt.Sprintf("%s entity does not exist", name))
+		return nil
 	}
-	entity, sensors := provider(ep.graphPool)
-	entity.id = ep.idCount++
+	entity, inputs := provider(ep.graphPool)
+	entity.id = ep.idCount + 1
 	ep.AddEntity(entity)
+	return entity, inputs
 }
 
 func (ep *EntityPool) AddEntity(entity *Entity) {
@@ -102,7 +103,7 @@ func (gp *GraphPool) AddProvider(name string, provider GraphProvider) {
 	}
 }
 
-func (gp *GraphPool) CreateLogicGraph(name string) (*flow.Graph, map[string]chan *EventPacked) {
+func (gp *GraphPool) CreateLogicGraph(name string) (*flow.Graph, map[string]chan *EventPacket) {
 	provider, ok := gp.providers[name]
 	if !ok {
 		panic(fmt.Sprintf("%s graphLogic does not exist", name))

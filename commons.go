@@ -5,11 +5,11 @@ type Type interface {
 }
 
 type ClockChannel interface {
-	OnCompleteStep() chan<- *StepEvent
+	OnCompleteStep() chan <- *StepEvent
 }
 
 type SimpleInChannel interface {
-	OnIn(event EventPacket) chan<- interface{} // The writeable end of the channel.
+	OnIn(event EventPacket) chan <- interface{} // The writeable end of the channel.
 }
 
 type SimpleOutChannel interface {

@@ -5,18 +5,19 @@ import (
 	"github.com/trustmaster/goflow"
 )
 
+type EventType string
+
 type Sensor interface {
 	SimpleInChannel
 	SimpleOutChannel
 	ClockChannel
-	EventType() string
 }
 
 /* SensorBase */
 type sensor struct {
 	flow.Component
 	name      string
-	eventType string
+	eventType EventType
 	Step      <-chan EventPacket  // input port
 	In        <-chan EventPacket  // input port
 	Out       chan <- EventPacket // output port
@@ -27,7 +28,7 @@ func (s *sensor) Name() string {
 	return s.name
 }
 
-func (s *sensor) EventType() string {
+func (s *sensor) EventType() EventType {
 	return s.eventType
 }
 
@@ -37,6 +38,12 @@ func (s *sensor) Frequency() int {
 
 func (s *sensor) OnCompleteStep() chan <- *StepEvent {
 	return nil
+}
+
+func (s *sensor) AddSensor(graph flow.Graph, inputs map[EventType] []chan *EventPacket) {
+	graph.Add(s, s.Name())
+	inputs[]
+
 }
 
 /* MouseSensor */

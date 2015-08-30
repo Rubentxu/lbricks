@@ -7,9 +7,9 @@ type EventSystem struct {
 	keyboardChan []chan *EventPacket
 }
 
-func (g *EventSystem) RegisterInputChannel(eventType string, channel chan *EventPacket) {
-	switch eventType {
-	case "MouseEvent":
+func (g *EventSystem) RegisterInputChannel(channel chan *EventPacket) {
+	switch v := channel.Event.(type) {
+	case chan :
 		append(g.mouseChan, channel)
 	case "KeyboardEvent":
 		append(g.keyboardChan, channel)

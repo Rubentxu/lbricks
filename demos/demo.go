@@ -32,6 +32,11 @@ func (g *Game) InitContext() {
 	graphPool.AddProvider("DemoGraph",NewDemoGraphProvider)
 	g.Pool = lbricks.CreateEntityPool(graphPool)
 	g.Pool.AddProvider("DemoEntityProvider")
+	_, inputs := g.Pool.CreateEntity("DemoEntityProvider")
+	for nameInput, channel := range inputs {
+		g.EventSystem.RegisterInputChannel(nameInput, channel)
+	}
+
 }
 
 type EventSystem struct {
@@ -76,24 +81,23 @@ func (p *Printer) OnLine(ms *lbricks.MouseEvent) {
 	imprimir = fmt.Sprintf("Posicion del MouseX %.f MouseY %.f", ms.PosX, ms.PosY)
 }
 
-func DemoEntityProvider(pool lbricks.GraphPool) (*lbricks.Entity, map[string]chan *lbricks.EventPacket){
+func DemoEntityProvider(pool lbricks.GraphPool) (*lbricks.Entity, []chan *lbricks.EventPacket){
 	logicG, inputs := pool.CreateLogicGraph("DemoGraph")
 	entity := lbricks.NewEntity()
 	entity.AddLogicGraph("DemoGraph",logicG)
 	return entity, inputs
 }
 
-func NewDemoGraphProvider() (*flow.Graph, map[string]chan *lbricks.EventPacket) {
-	n := new(flow.Graph) // creates the object in heap
-	n.InitGraphState()    // allocates me(*flow.Graph, map[string]chan *EventPacked)mory for the graph
+func NewDemoGraphProvider() (*flow.Graph, []chan *lbricks.EventPacket) {
+	n := flow.NewGraph().(flow.Graph)
 
 	msensor := lbricks.NewMouseSensor("mouseButtonUp", 1, engi.RIGHT_BUTTON_UP)
 	n.Add(msensor, msensor.Name())
 	n.Add(new(Printer), "printer")
 	n.Connect(msensor.Name(), "Out", "printer", "Line")
 
-	inputs := make(map[string] chan *lbricks.EventPacket)
-	inputs[msensor.Name()]= make(chan *lbricks.EventPacket)
+	inputs := make([] chan *lbricks.EventPacket)
+	inputs[msensor.EventType()]= make([]chan *lbricks.EventPacket)
 	n.MapInPort("InMouseButtonUp", msensor.Name(), "In")
 	n.SetInPort("InMouseButtonUp", inputs[msensor.Name()])
 	return n,inputs

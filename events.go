@@ -5,8 +5,7 @@ import (
 )
 
 type EventPacket struct {
-	Code int
-	Data interface{}
+	Event interface{}
 }
 
 // StepEvent

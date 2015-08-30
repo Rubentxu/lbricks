@@ -7,7 +7,7 @@ import (
 
 type Game struct {
 	Pool        EntityPool
-	EventSystem engi.Responder
+	EventSystem EventSystem
 }
 
 func (g *Game) InitContext() {

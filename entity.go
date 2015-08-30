@@ -6,8 +6,8 @@ import (
 )
 
 
-type EntityProvider func(graphPool *GraphPool) (*Entity, map[string]chan *EventPacket)
-type GraphProvider func() (*flow.Graph, map[string]chan *EventPacket)
+type EntityProvider func(graphPool *GraphPool) (*Entity)
+type GraphProvider func() (*flow.Graph)
 //type ComponentProvider func() interface{}
 //type SensorProvider func(graph *flow.Graph) *Sensor
 
@@ -67,7 +67,7 @@ func CreateEntityPool(graphPool *GraphPool) *EntityPool {
 	return &EntityPool{entities, providers, graphPool}
 }
 
-func (ep *EntityPool) CreateEntity(name string) (*Entity, map[string]chan *EventPacket) {
+func (ep *EntityPool) CreateEntity(name string) (*Entity, []chan *EventPacket) {
 	provider, ok := ep.providers[name]
 	if !ok {
 		panic(fmt.Sprintf("%s entity does not exist", name))
@@ -110,7 +110,7 @@ func (gp *GraphPool) AddProvider(name string, provider GraphProvider) {
 	}
 }
 
-func (gp *GraphPool) CreateLogicGraph(name string) (*flow.Graph, map[string]chan *EventPacket) {
+func (gp *GraphPool) CreateLogicGraph(name string) (*flow.Graph, []chan *EventPacket) {
 	provider, ok := gp.providers[name]
 	if !ok {
 		panic(fmt.Sprintf("%s graphLogic does not exist", name))

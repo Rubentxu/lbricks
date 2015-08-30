@@ -13,18 +13,11 @@ type Game struct {
 func (g *Game) InitContext() {
 	g.EventSystem = &EventSystem{}
 	graphPool := CreateGraphPool()
-	graphPool.AddProvider("preloadGraph", preloadGraph)
-	graphPool.AddProvider("setupGraph", setupGraph)
+	//graphPool.AddProvider("preloadGraph", preloadGraph)
+	//graphPool.AddProvider("setupGraph", setupGraph)
 	g.Pool = CreateEntityPool(graphPool)
 }
 
 
-func preloadGraph() (*flow.Graph, map[string]chan *EventPacket) {
-	
-}
-
-func setupGraph() (*flow.Graph, map[string]chan *EventPacket) {
-	
-}
 
 

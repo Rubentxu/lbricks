@@ -20,6 +20,13 @@ type Entity struct {
 	logicGraphs map[string]flow.Graph
 }
 
+func NewEntity() *Entity {
+	lg := make(map[string] flow.Graph)
+	entity := &Entity{}
+	entity.logicGraphs = lg
+	return entity
+}
+
 func (e *Entity) Id() int {
 	return e.id
 }

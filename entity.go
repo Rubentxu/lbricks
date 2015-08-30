@@ -2,7 +2,7 @@ package lbricks
 
 import (
 	"fmt"
-	"github.com/trustmaster/goflow"
+	"github.com/Rubentxu/lbricks/goflow"
 )
 
 

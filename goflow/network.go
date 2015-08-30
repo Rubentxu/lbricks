@@ -15,15 +15,15 @@ var DefaultNetworkCapacity = 32
 var DefaultNetworkPortsNum = 16
 
 // port stores full port information within the network.
-type port struct {
+type Port struct {
 	// Process name in the network
-	proc string
+	Proc string
 	// Port name of the process
-	port string
+	Port string
 	// Actual channel attached
-	channel reflect.Value
+	Channel reflect.Value
 	// Runtime info
-	info PortInfo
+	Info PortInfo
 }
 
 // portName stores full port name within the network.
@@ -56,8 +56,8 @@ type portMapper interface {
 	getOutPort(string) reflect.Value
 	hasInPort(string) bool
 	hasOutPort(string) bool
-	listInPorts() map[string]port
-	listOutPorts() map[string]port
+	listInPorts() map[string]Port
+	listOutPorts() map[string]Port
 	SetInPort(string, interface{}) bool
 	SetOutPort(string, interface{}) bool
 }
@@ -77,9 +77,9 @@ type Graph struct {
 	// procs contains the processes of the network.
 	procs map[string]interface{}
 	// inPorts maps network incoming ports to component ports.
-	inPorts map[string]port
+	inPorts map[string]Port
 	// outPorts maps network outgoing ports to component ports.
-	outPorts map[string]port
+	outPorts map[string]Port
 	// connections contains graph edges and channels.
 	connections []connection
 	// sendChanRefCount tracks how many sendports use the same channel
@@ -98,8 +98,8 @@ type Graph struct {
 func (n *Graph) InitGraphState() {
 	n.waitGrp = new(sync.WaitGroup)
 	n.procs = make(map[string]interface{}, DefaultNetworkCapacity)
-	n.inPorts = make(map[string]port, DefaultNetworkPortsNum)
-	n.outPorts = make(map[string]port, DefaultNetworkPortsNum)
+	n.inPorts = make(map[string]Port, DefaultNetworkPortsNum)
+	n.outPorts = make(map[string]Port, DefaultNetworkPortsNum)
 	n.connections = make([]connection, 0, DefaultNetworkCapacity)
 	n.sendChanRefCount = make(map[uintptr]uint, DefaultNetworkCapacity)
 	n.iips = make([]iip, 0, DefaultNetworkPortsNum)
@@ -228,16 +228,16 @@ func (n *Graph) Rename(processName, newName string) bool {
 		}
 	}
 	for key, port := range n.inPorts {
-		if port.proc == processName {
+		if port.Proc == processName {
 			tmp := n.inPorts[key]
-			tmp.proc = newName
+			tmp.Proc = newName
 			n.inPorts[key] = tmp
 		}
 	}
 	for key, port := range n.outPorts {
-		if port.proc == processName {
+		if port.Proc == processName {
 			tmp := n.outPorts[key]
-			tmp.proc = newName
+			tmp.Proc = newName
 			n.outPorts[key] = tmp
 		}
 	}
@@ -489,11 +489,11 @@ func (n *Graph) getInPort(name string) reflect.Value {
 	if !ok {
 		panic("flow.Graph.getInPort(): Invalid inport name: " + name)
 	}
-	return pName.channel
+	return pName.Channel
 }
 
 // listInPorts returns information about graph inports and their types.
-func (n *Graph) listInPorts() map[string]port {
+func (n *Graph) listInPorts() map[string]Port {
 	return n.inPorts
 }
 
@@ -503,11 +503,11 @@ func (n *Graph) getOutPort(name string) reflect.Value {
 	if !ok {
 		panic("flow.Graph.getOutPort(): Invalid outport name: " + name)
 	}
-	return pName.channel
+	return pName.Channel
 }
 
 // listOutPorts returns information about graph outports and their types.
-func (n *Graph) listOutPorts() map[string]port {
+func (n *Graph) listOutPorts() map[string]Port {
 	return n.outPorts
 }
 
@@ -552,7 +552,7 @@ func (n *Graph) MapInPort(name, procName, procPort string) bool {
 		panic("flow.Graph.MapInPort(): No such process: " + procName)
 	}
 	if ret {
-		n.inPorts[name] = port{proc: procName, port: procPort, channel: channel}
+		n.inPorts[name] = Port{Proc: procName, Port: procPort, Channel: channel}
 	}
 	return ret
 }
@@ -564,7 +564,7 @@ func (n *Graph) AnnotateInPort(name string, info PortInfo) bool {
 	if !exists {
 		return false
 	}
-	port.info = info
+	port.Info = info
 	return true
 }
 
@@ -601,7 +601,7 @@ func (n *Graph) MapOutPort(name, procName, procPort string) bool {
 		panic("flow.Graph.MapOutPort(): No such process: " + procName)
 	}
 	if ret {
-		n.outPorts[name] = port{proc: procName, port: procPort, channel: channel}
+		n.outPorts[name] = Port{Proc: procName, Port: procPort, Channel: channel}
 	}
 	return ret
 }
@@ -613,7 +613,7 @@ func (n *Graph) AnnotateOutPort(name string, info PortInfo) bool {
 	if !exists {
 		return false
 	}
-	port.info = info
+	port.Info = info
 	return true
 }
 
@@ -649,8 +649,8 @@ func (n *Graph) run() {
 
 		// Try to find it among network inports
 		for _, inPort := range n.inPorts {
-			if inPort.proc == ip.proc && inPort.port == ip.port {
-				rport = inPort.channel
+			if inPort.Proc == ip.proc && inPort.Port == ip.port {
+				rport = inPort.Channel
 				found = true
 				break
 			}
@@ -824,7 +824,7 @@ func (n *Graph) SetInPort(name string, channel interface{}) bool {
 	}
 	// Save it in inPorts to be used with IIPs if needed
 	if p, ok := n.inPorts[name]; ok {
-		p.channel = reflect.ValueOf(channel)
+		p.Channel = reflect.ValueOf(channel)
 		n.inPorts[name] = p
 	}
 	return res
@@ -846,8 +846,8 @@ func (n *Graph) UnsetInPort(name string) bool {
 	if !exists {
 		return false
 	}
-	if proc, ok := n.procs[port.proc]; ok {
-		unsetProcPort(proc, port.port, false)
+	if proc, ok := n.procs[port.Proc]; ok {
+		unsetProcPort(proc, port.Port, false)
 	}
 	delete(n.inPorts, name)
 	return true
@@ -866,7 +866,7 @@ func (n *Graph) SetOutPort(name string, channel interface{}) bool {
 	}
 	// Save it in outPorts to be used later
 	if p, ok := n.outPorts[name]; ok {
-		p.channel = reflect.ValueOf(channel)
+		p.Channel = reflect.ValueOf(channel)
 		n.outPorts[name] = p
 	}
 	return res
@@ -888,8 +888,8 @@ func (n *Graph) UnsetOutPort(name string) bool {
 	if !exists {
 		return false
 	}
-	if proc, ok := n.procs[port.proc]; ok {
-		unsetProcPort(proc, port.proc, true)
+	if proc, ok := n.procs[port.Proc]; ok {
+		unsetProcPort(proc, port.Proc, true)
 	}
 	delete(n.outPorts, name)
 	return true

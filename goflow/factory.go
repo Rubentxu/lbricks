@@ -4,6 +4,27 @@ import (
 	"reflect"
 )
 
+
+// PortInfo represents a port to a runtime client
+type PortInfo struct {
+	Id          string        `json:"id"`
+	Type        string        `json:"type"`
+	Description string        `json:"description"`
+	Addressable bool          `json:"addressable"` // ignored
+	Required    bool          `json:"required"`
+	Values      []interface{} `json:"values"`  // ignored
+	Default     interface{}   `json:"default"` // ignored
+}
+
+// ComponentInfo represents a component to a protocol client
+type ComponentInfo struct {
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Icon        string     `json:"icon"`
+	Subgraph    bool       `json:"subgraph"`
+	InPorts     []PortInfo `json:"inPorts"`
+	OutPorts    []PortInfo `json:"outPorts"`
+}
 // DefaultRegistryCapacity is the capacity component registry is initialized with.
 const DefaultRegistryCapacity = 64
 
@@ -90,24 +111,24 @@ func UpdateComponentInfo(componentName string) bool {
 		inPorts := portMap.listInPorts()
 		component.Info.InPorts = make([]PortInfo, len(inPorts))
 		for key, value := range inPorts {
-			if value.info.Id == "" {
-				value.info.Id = key
+			if value.Info.Id == "" {
+				value.Info.Id = key
 			}
-			if value.info.Type == "" {
-				value.info.Type = value.channel.Elem().Type().Name()
+			if value.Info.Type == "" {
+				value.Info.Type = value.Channel.Elem().Type().Name()
 			}
-			component.Info.InPorts = append(component.Info.InPorts, value.info)
+			component.Info.InPorts = append(component.Info.InPorts, value.Info)
 		}
 		outPorts := portMap.listOutPorts()
 		component.Info.OutPorts = make([]PortInfo, len(outPorts))
 		for key, value := range outPorts {
-			if value.info.Id == "" {
-				value.info.Id = key
+			if value.Info.Id == "" {
+				value.Info.Id = key
 			}
-			if value.info.Type == "" {
-				value.info.Type = value.channel.Elem().Type().Name()
+			if value.Info.Type == "" {
+				value.Info.Type = value.Channel.Elem().Type().Name()
 			}
-			component.Info.OutPorts = append(component.Info.OutPorts, value.info)
+			component.Info.OutPorts = append(component.Info.OutPorts, value.Info)
 		}
 	} else {
 		// Is a component

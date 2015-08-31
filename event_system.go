@@ -54,10 +54,12 @@ func (g *EventSystem) RegisterInputChannel(input flow.Port) {
 		append(g.stepEventChannels, input.Channel.(StepEvent))
 	case "MouseEvent" :
 		append(g.mouseEventChannels, input.Channel.(MouseEvent))
-		append(g.scrollEventChannels, input.Channel.(MouseEvent))
+	case "ScrollEvent" :
+		append(g.scrollEventChannels, input.Channel.(ScrollEvent))
 	case "KeyEvent" :
-		append(g.keyEventChannels, input.Channel.(Ke))
-		append(g.typeKeyEventChannels, input.Channel)
+		append(g.keyEventChannels, input.Channel.(KeyEvent))
+	case "TypeKeyEvent" :
+		append(g.typeKeyEventChannels, input.Channel.(TypeKeyEvent))
 	}
 }
 

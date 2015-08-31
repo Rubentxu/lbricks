@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/Rubentxu/lbricks/engi"
-	"github.com/trustmaster/goflow"
 	"github.com/Rubentxu/lbricks"
+	"github.com/Rubentxu/lbricks/goflow"
 )
 
 var (
@@ -33,8 +33,9 @@ func (g *Game) InitContext() {
 	g.Pool = lbricks.CreateEntityPool(graphPool)
 	g.Pool.AddProvider("DemoEntityProvider",DemoEntityProvider)
 
-	
-	g.EventSystem.RegisterInputChannel()
+	preloadChan := make(chan *lbricks.PreloadEvent)
+	g.EventSystem.RegisterInputChannel(&flow.Port {Port : "PreloadEvent", Channel: preloadChan})
+
 	ports := g.Pool.CreateEntity("DemoEntityProvider")
 	for _, p := range ports {
 		g.EventSystem.RegisterInputChannel(p.Port, p.Channel)
@@ -43,10 +44,13 @@ func (g *Game) InitContext() {
 
 
 
-func (g *Game) Preload() {
-	engi.Files.Add("bot", "data/icon.png")
-	engi.Files.Add("font", "data/font.png")
-	batch = engi.NewBatch(engi.Width(), engi.Height())
+func (g *Game) Preload(input chan *lbricks.PreloadEvent) {
+	for {
+		<- input
+		engi.Files.Add("bot", "data/icon.png")
+		engi.Files.Add("font", "data/font.png")
+		batch = engi.NewBatch(engi.Width(), engi.Height())
+	}
 }
 
 func (g *Game) Setup() {

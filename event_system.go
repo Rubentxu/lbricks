@@ -1,19 +1,25 @@
 package lbricks
 
-import "github.com/Rubentxu/lbricks/engi"
+import (
+	"github.com/Rubentxu/lbricks/engi"
+	"github.com/Rubentxu/lbricks/goflow"
+)
 
 
 type EventSystem struct {
-	mouseChan    []chan *EventPacket
-	keyboardChan []chan *EventPacket
+	stepChan	 []chan *StepEvent
+	mouseChan    []chan *MouseEvent
+	keyboardChan []chan *KeyboardEvent
 }
 
-func (g *EventSystem) RegisterInputChannel(channel chan *EventPacket) {
-	switch v := channel.Event.(type) {
-	case chan :
-		append(g.mouseChan, channel)
-	case "KeyboardEvent":
-		append(g.keyboardChan, channel)
+func (g *EventSystem) RegisterInputChannel(input flow.Port) {
+	switch input.Port {
+	case "StepEvent" :
+		append(g.stepChan, input.Channel)
+	case "MouseEvent" :
+		append(g.mouseChan, input.Channel)
+	case "KeyboardEvent" :
+		append(g.keyboardChan, input.Channel)
 	}
 }
 

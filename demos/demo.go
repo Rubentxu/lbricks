@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/Rubentxu/lbricks"
 	"github.com/Rubentxu/lbricks/engi"
 	"github.com/trustmaster/goflow"
+	"github.com/Rubentxu/lbricks"
 )
 
 var (
@@ -31,9 +31,9 @@ func (g *Game) InitContext() {
 	graphPool := lbricks.CreateGraphPool()
 	graphPool.AddProvider("DemoGraph",NewDemoGraphProvider)
 	g.Pool = lbricks.CreateEntityPool(graphPool)
-	g.Pool.AddProvider("DemoEntityProvider")
-	_, inputs := g.Pool.CreateEntity("DemoEntityProvider")
-	for nameInput, channel := range inputs {
+	g.Pool.AddProvider("DemoEntityProvider",DemoEntityProvider)
+	g.Pool.CreateEntity("DemoEntityProvider")
+	for nameInput, channel := range g.Pool {
 		g.EventSystem.RegisterInputChannel(nameInput, channel)
 	}
 
@@ -82,10 +82,10 @@ func (p *Printer) OnLine(ms *lbricks.MouseEvent) {
 }
 
 func DemoEntityProvider(pool lbricks.GraphPool) (*lbricks.Entity, []chan *lbricks.EventPacket){
-	logicG, inputs := pool.CreateLogicGraph("DemoGraph")
+	logicG := pool.CreateLogicGraph("DemoGraph")
 	entity := lbricks.NewEntity()
 	entity.AddLogicGraph("DemoGraph",logicG)
-	return entity, inputs
+	return entity
 }
 
 func NewDemoGraphProvider() (*flow.Graph, []chan *lbricks.EventPacket) {

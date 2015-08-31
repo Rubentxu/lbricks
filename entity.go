@@ -67,7 +67,7 @@ func CreateEntityPool(graphPool *GraphPool) *EntityPool {
 	return &EntityPool{entities, providers, graphPool}
 }
 
-func (ep *EntityPool) CreateEntity(name string) (*Entity, []chan *EventPacket) {
+func (ep *EntityPool) CreateEntity(name string) (*Entity) {
 	provider, ok := ep.providers[name]
 	if !ok {
 		panic(fmt.Sprintf("%s entity does not exist", name))
@@ -110,7 +110,7 @@ func (gp *GraphPool) AddProvider(name string, provider GraphProvider) {
 	}
 }
 
-func (gp *GraphPool) CreateLogicGraph(name string) (*flow.Graph, []chan *EventPacket) {
+func (gp *GraphPool) CreateLogicGraph(name string) *flow.Graph {
 	provider, ok := gp.providers[name]
 	if !ok {
 		panic(fmt.Sprintf("%s graphLogic does not exist", name))

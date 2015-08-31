@@ -7,17 +7,17 @@ import (
 
 
 type EventSystem struct {
-	preloadChannnels	 []chan *PreloadEvent
-	setupEventChannels	 []chan *SetupEvent
-	closeEventChannels	 []chan *CloseEvent
-	updateEventChannels	 []chan *UpdateEvent
-	renderEventChannels	 []chan *RenderEvent
-	resizeEventChannels	 []chan *ResizeEvent
-	stepChannels []chan *StepEvent
-	mouseChannels []chan *MouseEvent
-	scrollEventChannels	 []chan *ScrollEvent
-	keyChannels []chan *KeyEvent
-	typeKeyEventChannels []chan *TypeKeyEvent
+	preloadChannnels	 	[]chan *PreloadEvent
+	setupEventChannels	 	[]chan *SetupEvent
+	closeEventChannels	 	[]chan *CloseEvent
+	updateEventChannels	 	[]chan *UpdateEvent
+	renderEventChannels	 	[]chan *RenderEvent
+	resizeEventChannels	 	[]chan *ResizeEvent
+	stepChannels 			[]chan *StepEvent
+	mouseChannels 			[]chan *MouseEvent
+	scrollEventChannels	 	[]chan *ScrollEvent
+	keyChannels 			[]chan *KeyEvent
+	typeKeyEventChannels 	[]chan *TypeKeyEvent
 }
 
 func (g *EventSystem) RegisterInputChannel(input flow.Port) {

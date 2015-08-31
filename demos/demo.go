@@ -27,29 +27,26 @@ type Game struct {
 }
 
 func (g *Game) InitContext() {
-	g.EventSystem = &EventSystem{}
+	g.EventSystem = &lbricks.EventSystem{}
 	graphPool := lbricks.CreateGraphPool()
 	graphPool.AddProvider("DemoGraph",NewDemoGraphProvider)
 	g.Pool = lbricks.CreateEntityPool(graphPool)
 	g.Pool.AddProvider("DemoEntityProvider",DemoEntityProvider)
-	g.Pool.CreateEntity("DemoEntityProvider")
-	for nameInput, channel := range g.Pool {
-		g.EventSystem.RegisterInputChannel(nameInput, channel)
+	ports := g.Pool.CreateEntity("DemoEntityProvider")
+	for _, p := range ports {
+		g.EventSystem.RegisterInputChannel(p.Port, p.Channel)
 	}
-
 }
 
-type EventSystem struct {
-	lbricks.EventSystem
-}
 
-func (e *EventSystem) Preload() {
+
+func (g *Game) Preload() {
 	engi.Files.Add("bot", "data/icon.png")
 	engi.Files.Add("font", "data/font.png")
 	batch = engi.NewBatch(engi.Width(), engi.Height())
 }
 
-func (e *EventSystem) Setup() {
+func (g *Game) Setup() {
 	engi.SetBg(0x2d3739)
 	bot = engi.Files.Image("bot")
 	font = engi.NewGridFont(engi.Files.Image("font"), 20, 20)
@@ -62,7 +59,7 @@ func (e *EventSystem) Setup() {
 }
 
 
-func (e *EventSystem) Render() {
+func (g *Game) Render() {
 	batch.Begin()
 	font.Print(batch, imprimir, 10, 200, 0xffffff)
 	batch.Draw(bot, 512, 320, 0.5, 0.5, 10, 10, 0, 0xffffff, 1)
@@ -81,14 +78,14 @@ func (p *Printer) OnLine(ms *lbricks.MouseEvent) {
 	imprimir = fmt.Sprintf("Posicion del MouseX %.f MouseY %.f", ms.PosX, ms.PosY)
 }
 
-func DemoEntityProvider(pool lbricks.GraphPool) (*lbricks.Entity, []chan *lbricks.EventPacket){
+func DemoEntityProvider(pool lbricks.GraphPool) *lbricks.Entity{
 	logicG := pool.CreateLogicGraph("DemoGraph")
 	entity := lbricks.NewEntity()
 	entity.AddLogicGraph("DemoGraph",logicG)
 	return entity
 }
 
-func NewDemoGraphProvider() (*flow.Graph, []chan *lbricks.EventPacket) {
+func NewDemoGraphProvider() (*flow.Graph) {
 	n := flow.NewGraph().(flow.Graph)
 
 	msensor := lbricks.NewMouseSensor("mouseButtonUp", 1, engi.RIGHT_BUTTON_UP)
@@ -96,10 +93,8 @@ func NewDemoGraphProvider() (*flow.Graph, []chan *lbricks.EventPacket) {
 	n.Add(new(Printer), "printer")
 	n.Connect(msensor.Name(), "Out", "printer", "Line")
 
-	inputs := make([] chan *lbricks.EventPacket)
-	inputs[msensor.EventType()]= make([]chan *lbricks.EventPacket)
+	inMouseButtonUp := make([]chan *lbricks.MouseEvent)
 	n.MapInPort("InMouseButtonUp", msensor.Name(), "In")
-	n.SetInPort("InMouseButtonUp", inputs[msensor.Name()])
-	return n,inputs
-
+	n.SetInPort("InMouseButtonUp", inMouseButtonUp)
+	return n
 }

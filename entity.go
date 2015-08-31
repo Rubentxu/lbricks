@@ -6,12 +6,8 @@ import (
 )
 
 
-type EntityProvider func(graphPool *GraphPool) (*Entity)
+type EntityProvider func(graphPool *GraphPool) *Entity
 type GraphProvider func() (*flow.Graph)
-//type ComponentProvider func() interface{}
-//type SensorProvider func(graph *flow.Graph) *Sensor
-
-
 type EntityID uint
 
 // Entity
@@ -44,9 +40,19 @@ func (e *Entity) AddLogicGraph(name string, graph flow.Graph) bool {
 	return false
 }
 
-func (e *Entity) GetLogicGraph(name string) (*flow.Graph, bool) {
+func (e *Entity) LogicGraph(name string) (*flow.Graph, bool) {
 	elem, ok := e.logicGraphs[name]
 	return elem, ok
+}
+
+func (e *Entity) GetPorts() [] *flow.Port {
+	ports := []flow.Port{}
+	for _, graph:= range e.logicGraphs {
+		for _, p:= range graph.ListInPorts() {
+			append(ports,p)
+		}
+	}
+	return ports
 }
 
 
@@ -67,22 +73,22 @@ func CreateEntityPool(graphPool *GraphPool) *EntityPool {
 	return &EntityPool{entities, providers, graphPool}
 }
 
-func (ep *EntityPool) CreateEntity(name string) (*Entity) {
+func (ep *EntityPool) addEntity(entity *Entity) {
+	if _, ok := ep.entities[entity.Id()]; !ok {
+		ep.entities[entity.Id()] = entity
+	}
+}
+
+func (ep *EntityPool) CreateEntity(name string) []*flow.Port {
 	provider, ok := ep.providers[name]
 	if !ok {
 		panic(fmt.Sprintf("%s entity does not exist", name))
 		return nil
 	}
-	entity, inputs := provider(ep.graphPool)
+	entity := provider(ep.graphPool)
 	entity.id = ep.idCount + 1
-	ep.AddEntity(entity)
-	return entity, inputs
-}
-
-func (ep *EntityPool) AddEntity(entity *Entity) {
-	if _, ok := ep.entities[entity.Id()]; !ok {
-		ep.entities[entity.Id()] = entity
-	}
+	ep.addEntity(entity)
+	return entity, entity.GetPorts()
 }
 
 func (ep *EntityPool) AddProvider(name string, provider EntityProvider) {
@@ -91,6 +97,13 @@ func (ep *EntityPool) AddProvider(name string, provider EntityProvider) {
 	}
 }
 
+func (ep *EntityPool) Entities()  {
+	return ep.entities
+}
+
+func (ep *EntityPool) Entity(name string) (Entity, bool) {
+	return  ep.entities[name]
+}
 
 
 

@@ -108,7 +108,7 @@ func UpdateComponentInfo(componentName string) bool {
 	if isGraph {
 		// Is a subgraph
 		component.Info.Subgraph = true
-		inPorts := portMap.listInPorts()
+		inPorts := portMap.ListInPorts()
 		component.Info.InPorts = make([]PortInfo, len(inPorts))
 		for key, value := range inPorts {
 			if value.Info.Id == "" {

@@ -56,7 +56,7 @@ type portMapper interface {
 	getOutPort(string) reflect.Value
 	hasInPort(string) bool
 	hasOutPort(string) bool
-	listInPorts() map[string]Port
+	ListInPorts() map[string]Port
 	listOutPorts() map[string]Port
 	SetInPort(string, interface{}) bool
 	SetOutPort(string, interface{}) bool
@@ -493,7 +493,7 @@ func (n *Graph) getInPort(name string) reflect.Value {
 }
 
 // listInPorts returns information about graph inports and their types.
-func (n *Graph) listInPorts() map[string]Port {
+func (n *Graph) ListInPorts() map[string]Port {
 	return n.inPorts
 }
 

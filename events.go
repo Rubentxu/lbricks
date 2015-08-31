@@ -23,8 +23,8 @@ type StepEvent struct {
 
 // MouseEvent
 type MouseEvent struct {
-	PosX, PosY   float32
-	Action       engi.MouseAction
+	PosX, PosY float32
+	Action     engi.MouseAction
 }
 
 type ScrollEvent struct {

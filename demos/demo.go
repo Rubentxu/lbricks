@@ -27,11 +27,14 @@ type Game struct {
 }
 
 func (g *Game) InitContext() {
-	g.EventSystem = &lbricks.EventSystem{}
+	g.EventSystem = &lbricks.CreateEventSystem(100)
 	graphPool := lbricks.CreateGraphPool()
 	graphPool.AddProvider("DemoGraph",NewDemoGraphProvider)
 	g.Pool = lbricks.CreateEntityPool(graphPool)
 	g.Pool.AddProvider("DemoEntityProvider",DemoEntityProvider)
+
+	
+	g.EventSystem.RegisterInputChannel()
 	ports := g.Pool.CreateEntity("DemoEntityProvider")
 	for _, p := range ports {
 		g.EventSystem.RegisterInputChannel(p.Port, p.Channel)

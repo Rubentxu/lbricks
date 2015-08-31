@@ -7,7 +7,7 @@ import (
 
 
 type EntityProvider func(graphPool *GraphPool) *Entity
-type GraphProvider func() (*flow.Graph)
+type GraphProvider func() *flow.Graph
 type EntityID uint
 
 // Entity

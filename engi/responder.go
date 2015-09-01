@@ -11,8 +11,6 @@ type Responder interface {
 	Setup()
 	Close()
 	Update(dt float32)
-	Step(step float64, numStep uint32)
-	PoolChanged(entity interface{})
 	Mouse(x, y float32, action MouseAction)
 	Scroll(amount float32)
 	Key(key Key, modifier Modifier, action KeyAction)

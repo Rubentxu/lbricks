@@ -1,7 +1,6 @@
 package lbricks
 
 import (
-	"github.com/Rubentxu/lbricks/engi"
 	"github.com/Rubentxu/lbricks/goflow"
 )
 
@@ -31,10 +30,10 @@ func (s *Sensor) AddToGraph(graph flow.Graph) {
 type MouseSensor struct {
 	Sensor
 	MouseEvent <-chan *MouseEvent
-	action engi.MouseAction
+	action MouseAction
 }
 
-func NewMouseSensor(name string, freq int, action engi.MouseAction) *MouseSensor {
+func NewMouseSensor(name string, freq int, action MouseAction) *MouseSensor {
 	sensor := new(MouseSensor)
 	sensor.Name = name
 	sensor.Frequency = freq
@@ -57,18 +56,18 @@ func (ms *MouseSensor) OnMouseEvent(event *MouseEvent) {
 // KeyboardSensor
 type KeyboardSensor struct {
 	Sensor                        // component "superclass" embedded
-	KeyboardEvent      <-chan *KeyboardEvent  // input port
-	Out     chan <- *KeyboardEvent // output port
-	action  engi.KeyAction
-	key     engi.Key
+	KeyboardEvent      <-chan *KeyEvent  // input port
+	Out     chan <- *KeyEvent // output port
+	action  KeyAction
+	key     Key
 	allKeys bool
 }
 
-func NewKeyboardSensor(a engi.KeyAction, k engi.Key) *KeyboardSensor {
+func NewKeyboardSensor(a KeyAction, k Key) *KeyboardSensor {
 	return &KeyboardSensor{action: a, key: k, allKeys: false}
 }
 
-func (ks *KeyboardSensor) OnKeyboardEvent(event *KeyboardEvent) {
+func (ks *KeyboardSensor) OnKeyboardEvent(event *KeyEvent) {
 	if ks.allKeys {
 		ks.Out <- event
 	} else if event.Action == ks.action && event.Key == ks.key {

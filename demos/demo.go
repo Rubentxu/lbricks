@@ -35,6 +35,11 @@ func (g *Game) InitContext() {
 
 	preloadChan := make(chan *lbricks.PreloadEvent)
 	g.EventSystem.RegisterInputChannel(&flow.Port {Port : "PreloadEvent", Channel: preloadChan})
+	go Preload(preloadChan)
+
+	setupChan := make(chan *lbricks.SetupEvent)
+	g.EventSystem.RegisterInputChannel(&flow.Port {Port : "SetupEvent", Channel: setupChan})
+	go Setup(setupChan)
 
 	ports := g.Pool.CreateEntity("DemoEntityProvider")
 	for _, p := range ports {
@@ -44,7 +49,7 @@ func (g *Game) InitContext() {
 
 
 
-func (g *Game) Preload(input chan *lbricks.PreloadEvent) {
+func  Preload(input chan *lbricks.PreloadEvent) {
 	for {
 		<- input
 		engi.Files.Add("bot", "data/icon.png")
@@ -53,7 +58,8 @@ func (g *Game) Preload(input chan *lbricks.PreloadEvent) {
 	}
 }
 
-func (g *Game) Setup() {
+func Setup(input chan *lbricks.SetupEvent) {
+	<- input
 	engi.SetBg(0x2d3739)
 	bot = engi.Files.Image("bot")
 	font = engi.NewGridFont(engi.Files.Image("font"), 20, 20)
@@ -61,7 +67,7 @@ func (g *Game) Setup() {
 
 	imprimir = "holasss"
 
-	flow.RunNet(net)
+
 
 }
 
@@ -103,5 +109,6 @@ func NewDemoGraphProvider() (*flow.Graph) {
 	inMouseButtonUp := make([]chan *lbricks.MouseEvent)
 	n.MapInPort("InMouseButtonUp", msensor.Name(), "In")
 	n.SetInPort("InMouseButtonUp", inMouseButtonUp)
+	flow.RunNet(n)
 	return n
 }

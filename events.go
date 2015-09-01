@@ -1,9 +1,5 @@
 package lbricks
 
-import (
-	"github.com/Rubentxu/lbricks/engi"
-)
-
 type PreloadEvent struct {}
 type SetupEvent struct {}
 type CloseEvent struct {}
@@ -18,24 +14,25 @@ type ResizeEvent struct {
 // StepEvent
 type StepEvent struct {
 	Step    float64
-	NumStep int
+	NumStep uint32
 }
 
 // MouseEvent
 type MouseEvent struct {
 	PosX, PosY float32
-	Action     engi.MouseAction
+	Action     MouseAction
 }
 
 type ScrollEvent struct {
 	AmountScroll float32
+	Action     MouseAction
 }
 
 // KeyboardEvent
 type KeyEvent struct {
-	Key      engi.Key
-	Modifier engi.Modifier
-	Action   engi.KeyAction
+	Key      Key
+	Modifier Modifier
+	Action   KeyAction
 }
 
 type TypeKeyEvent struct {

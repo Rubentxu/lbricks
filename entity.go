@@ -13,17 +13,17 @@ type EntityID uint
 // Entity
 type Entity struct {
 	id          EntityID
-	logicGraphs map[string]flow.Graph
+	logicGraphs map[string] *flow.Graph
 }
 
 func NewEntity() *Entity {
-	lg := make(map[string] flow.Graph)
+	lg := make(map[string] *flow.Graph)
 	entity := &Entity{}
 	entity.logicGraphs = lg
 	return entity
 }
 
-func (e *Entity) Id() int {
+func (e *Entity) Id() EntityID {
 	return e.id
 }
 
@@ -32,7 +32,7 @@ func (e *Entity) HasLogicGraph(name string) bool {
 	return ok
 }
 
-func (e *Entity) AddLogicGraph(name string, graph flow.Graph) bool {
+func (e *Entity) AddLogicGraph(name string, graph *flow.Graph) bool {
 	if !e.HasLogicGraph(name) {
 		e.logicGraphs[name] = graph
 		return true
@@ -40,16 +40,21 @@ func (e *Entity) AddLogicGraph(name string, graph flow.Graph) bool {
 	return false
 }
 
+
+func (e *Entity) LogicGraphs() map[string] *flow.Graph  {
+	return e.logicGraphs
+}
+
 func (e *Entity) LogicGraph(name string) (*flow.Graph, bool) {
 	elem, ok := e.logicGraphs[name]
 	return elem, ok
 }
 
-func (e *Entity) GetPorts() [] *flow.Port {
-	ports := []flow.Port{}
+func (e *Entity) GetPorts() [] flow.Port {
+	ports := [] flow.Port{}
 	for _, graph:= range e.logicGraphs {
 		for _, p:= range graph.ListInPorts() {
-			append(ports,p)
+			ports= append(ports,p)
 		}
 	}
 	return ports
@@ -61,16 +66,16 @@ func (e *Entity) GetPorts() [] *flow.Port {
 // EntityPool
 type EntityPool struct {
 	idCount   uint64
-	entities  map[int]*Entity
+	entities  map[EntityID]*Entity
 	unused    []Entity
 	providers map[string]EntityProvider
-	graphPool GraphPool
+	graphPool *GraphPool
 }
 
-func CreateEntityPool(graphPool *GraphPool) *EntityPool {
-	entities := make(map[int]*Entity)
-	providers := make(map[string]EntityProvider)
-	return &EntityPool{entities, providers, graphPool}
+func CreateEntityPool(gp *GraphPool) *EntityPool {
+	e := make(map[EntityID]*Entity)
+	p := make(map[string]EntityProvider)
+	return &EntityPool{entities: e, providers: p, graphPool: gp}
 }
 
 func (ep *EntityPool) addEntity(entity *Entity) {
@@ -79,16 +84,16 @@ func (ep *EntityPool) addEntity(entity *Entity) {
 	}
 }
 
-func (ep *EntityPool) CreateEntity(name string) []*flow.Port {
+func (ep *EntityPool) CreateEntity(name string) []flow.Port {
 	provider, ok := ep.providers[name]
 	if !ok {
 		panic(fmt.Sprintf("%s entity does not exist", name))
 		return nil
 	}
 	entity := provider(ep.graphPool)
-	entity.id = ep.idCount + 1
+	entity.id = EntityID(int(ep.idCount)+1)
 	ep.addEntity(entity)
-	return entity, entity.GetPorts()
+	return entity.GetPorts()
 }
 
 func (ep *EntityPool) AddProvider(name string, provider EntityProvider) {
@@ -97,12 +102,13 @@ func (ep *EntityPool) AddProvider(name string, provider EntityProvider) {
 	}
 }
 
-func (ep *EntityPool) Entities()  {
+func (ep *EntityPool) Entities() map[EntityID]*Entity{
 	return ep.entities
 }
 
-func (ep *EntityPool) Entity(name string) (Entity, bool) {
-	return  ep.entities[name]
+func (ep *EntityPool) Entity(id EntityID) (*Entity, bool) {
+	elem,ok :=  ep.entities[id]
+	return elem,ok
 }
 
 

@@ -7,7 +7,7 @@ import (
 
 
 type EventSystem struct {
-	preloadEventChannnels 	[]chan *PreloadEvent
+	PreloadEventChannnels 	[]chan *PreloadEvent
 	setupEventChannels	 	[]chan *SetupEvent
 	closeEventChannels	 	[]chan *CloseEvent
 	updateEventChannels	 	[]chan *UpdateEvent
@@ -22,51 +22,51 @@ type EventSystem struct {
 
 func CreateEventSystem(capacity int) *EventSystem  {
 	eventSystem := new(EventSystem)
-	eventSystem.preloadEventChannnels = make([]chan *PreloadEvent, 50, capacity)
-	eventSystem.setupEventChannels =	make([]chan *SetupEvent, 50, capacity)
-	eventSystem.closeEventChannels = 	make([]chan *CloseEvent, 50, capacity)
-	eventSystem.updateEventChannels = 	make([]chan *UpdateEvent, 50, capacity)
-	eventSystem.renderEventChannels = 	make([]chan *RenderEvent, 50, capacity)
-	eventSystem.resizeEventChannels = 	make([]chan *ResizeEvent, 50, capacity)
-	eventSystem.stepEventChannels = 	make([]chan *StepEvent, 50, capacity)
-	eventSystem.mouseEventChannels = 	make([]chan *MouseEvent, 50, capacity)
-	eventSystem.scrollEventChannels = 	make([]chan *ScrollEvent, 50, capacity)
-	eventSystem.keyEventChannels = 		make([]chan *KeyEvent, 50, capacity)
-	eventSystem.typeKeyEventChannels = 	make([]chan *TypeKeyEvent, 50, capacity)
+	eventSystem.PreloadEventChannnels = make([]chan *PreloadEvent, 0, capacity)
+	eventSystem.setupEventChannels =	make([]chan *SetupEvent, 0, capacity)
+	eventSystem.closeEventChannels = 	make([]chan *CloseEvent, 0, capacity)
+	eventSystem.updateEventChannels = 	make([]chan *UpdateEvent, 0, capacity)
+	eventSystem.renderEventChannels = 	make([]chan *RenderEvent, 0, capacity)
+	eventSystem.resizeEventChannels = 	make([]chan *ResizeEvent, 0, capacity)
+	eventSystem.stepEventChannels = 	make([]chan *StepEvent, 0, capacity)
+	eventSystem.mouseEventChannels = 	make([]chan *MouseEvent, 0, capacity)
+	eventSystem.scrollEventChannels = 	make([]chan *ScrollEvent, 0, capacity)
+	eventSystem.keyEventChannels = 		make([]chan *KeyEvent, 0, capacity)
+	eventSystem.typeKeyEventChannels = 	make([]chan *TypeKeyEvent, 0, capacity)
 	return eventSystem
 }
 
 func (g *EventSystem) RegisterInputChannel(input flow.Port) {
-	event:= input.Channel.Type().Name()
-	switch event{
-	case "PreloadEvent" :
-		g.preloadEventChannnels = append(g.preloadEventChannnels, input.Channel.Interface().(chan *PreloadEvent))
-	case "SetupEvent" :
+	event := input.Channel.Interface()
+	switch event.(type) {
+	case chan *PreloadEvent :
+		g.PreloadEventChannnels = append(g.PreloadEventChannnels, input.Channel.Interface().(chan *PreloadEvent))
+	case chan *SetupEvent :
 		g.setupEventChannels = append(g.setupEventChannels, input.Channel.Interface().(chan *SetupEvent))
-	case "CloseEvent" :
+	case chan *CloseEvent :
 		g.closeEventChannels = append(g.closeEventChannels, input.Channel.Interface().(chan *CloseEvent))
-	case "UpdateEvent" :
+	case chan *UpdateEvent :
 		g.updateEventChannels = append(g.updateEventChannels, input.Channel.Interface().(chan *UpdateEvent))
-	case "RenderEvent" :
+	case chan *RenderEvent :
 		g.renderEventChannels = append(g.renderEventChannels, input.Channel.Interface().(chan *RenderEvent))
-	case "ResizeEvent" :
+	case chan *ResizeEvent :
 		g.resizeEventChannels = append(g.resizeEventChannels, input.Channel.Interface().(chan *ResizeEvent))
-	case "StepEvent" :
+	case chan *StepEvent :
 		g.stepEventChannels = append(g.stepEventChannels, input.Channel.Interface().(chan *StepEvent))
-	case "MouseEvent" :
+	case chan *MouseEvent :
 		g.mouseEventChannels = append(g.mouseEventChannels, input.Channel.Interface().(chan *MouseEvent))
-	case "ScrollEvent" :
+	case chan *ScrollEvent :
 		g.scrollEventChannels = append(g.scrollEventChannels, input.Channel.Interface().(chan *ScrollEvent))
-	case "KeyEvent" :
+	case chan *KeyEvent :
 		g.keyEventChannels = append(g.keyEventChannels, input.Channel.Interface().(chan *KeyEvent))
-	case "TypeKeyEvent" :
+	case chan *TypeKeyEvent :
 		g.typeKeyEventChannels = append(g.typeKeyEventChannels, input.Channel.Interface().(chan *TypeKeyEvent))
 	}
 }
 
 func (g *EventSystem) Preload() {
 	event := &PreloadEvent{}
-	for _, e := range g.preloadEventChannnels {
+	for _, e := range g.PreloadEventChannnels {
 		e <- event
 	}
 }

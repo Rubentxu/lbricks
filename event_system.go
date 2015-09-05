@@ -37,7 +37,8 @@ func CreateEventSystem(capacity int) *EventSystem  {
 }
 
 func (g *EventSystem) RegisterInputChannel(input flow.Port) {
-	switch input.Channel.Type().Name() {
+	event:= input.Channel.Type().Name()
+	switch event{
 	case "PreloadEvent" :
 		g.preloadEventChannnels = append(g.preloadEventChannnels, input.Channel.Interface().(chan *PreloadEvent))
 	case "SetupEvent" :

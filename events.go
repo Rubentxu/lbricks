@@ -4,7 +4,7 @@ type PreloadEvent struct {}
 type SetupEvent struct {}
 type CloseEvent struct {}
 type UpdateEvent struct {
-	dt float32
+	DeltaTime float32
 }
 type RenderEvent struct {}
 type ResizeEvent struct {

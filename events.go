@@ -1,5 +1,10 @@
 package lbricks
 
+type EventPacket struct {
+	Event interface{}
+
+}
+
 type PreloadEvent struct {}
 type SetupEvent struct {}
 type CloseEvent struct {}

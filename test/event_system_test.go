@@ -31,7 +31,7 @@ func TestRegisterInputChannel(t *testing.T) {
 	eventChan := make(chan *lbricks.PreloadEvent)
 	inputs := flow.Port{Channel : reflect.ValueOf(eventChan)}
 
-	e_system.RegisterInputChannel(inputs)
+	e_system.RegisterEntityInput(inputs)
 	go e_system.Preload()
 
 	event:= <-eventChan
@@ -42,7 +42,7 @@ func TestRegisterInputChannels(t *testing.T) {
 	e_system := lbricks.CreateEventSystem(1000)
 	inputs := GetPorts()
 	for _,port := range inputs {
-		e_system.RegisterInputChannel(port)
+		e_system.RegisterEntityInput(port)
 	}
 
 	go e_system.Preload()

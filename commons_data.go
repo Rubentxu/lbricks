@@ -17,5 +17,6 @@ type View struct {
 	Anchor   *vec2.T
 	Color    uint32
 	Alpha    float32
+	Layer    uint
 	Region   *engi.Region
 }

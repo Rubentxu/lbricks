@@ -1,6 +1,4 @@
 package lbricks
-import "github.com/paked/engi"
-
 
 type StageProvider func(game GameContext) *Stage
 type StageId uint
@@ -16,7 +14,7 @@ type GameContext struct {
 	Pool        EntityPool
 	EventSystem EventSystem
 	StageProviders map[string] StageProvider
-	engi.RenderSystem
+	RenderSystem RenderSystem
 }
 
 

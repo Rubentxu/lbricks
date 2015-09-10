@@ -1,8 +1,27 @@
 package lbricks
 
+
+type Poolable  interface {
+	Reset()
+}
+
 type Disposable interface{
 	Dispose()
 }
+
+type Renderer interface {
+	Render(Batch)
+}
+
+type Positioner interface {
+	Position() []float32
+}
+
+type Scaler interface {
+	Scale() []float32
+}
+
+
 
 type Drawable interface {
 	Texture() int
@@ -18,16 +37,12 @@ type Batch interface {
 	SetProjection(width, height float32)
 }
 
-type Renderer interface {
-	Render(Batch)
-}
 
 type Transform interface {
-	Position() []float32
-	Scale()  	[]float32
+	Positioner
+	Scaler
 	Rotation() float32
 }
-
 
 type View interface {
 	Renderer
@@ -41,6 +56,7 @@ type View interface {
 	Layer() uint
 
 }
+
 
 type Sprite struct {
 	Transform Transform

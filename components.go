@@ -1,6 +1,9 @@
 package lbricks
 
-import "github.com/ungerik/go3d/vec2"
+import (
+	"github.com/ungerik/go3d/vec2"
+	"github.com/paked/engi"
+)
 
 // Identity Component
 type Identity struct {
@@ -59,15 +62,7 @@ func (c *Color) Alpha() float32 {
 
 // Superficie Component
 type Superficie struct {
-	width, height float32
-}
 
-func (a *Superficie) Width() float32 {
-	return a.width
-}
-
-func (a *Superficie) Height() float32 {
-	return a.height
 }
 
 type Shape []float32
@@ -98,9 +93,20 @@ type Sprite struct {
 	Shape
 	view Drawable
 	Anchor 	[2]float32
+	layer   uint
+	width, height float32
 }
 
 func (v *Sprite) Render(batch Batch) {
 	batch.Draw(v, v.Position()[0], v.Position()[1], v.Anchor[0], v.Anchor[1], v.Scale()[0],
 		v.Scale()[1], v.Rotation(), v.Color, v.Alpha)
 }
+
+func (s *Sprite) Width() float32 {
+	return s.width
+}
+
+func (s *Sprite) Height() float32 {
+	return s.height
+}
+

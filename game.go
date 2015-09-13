@@ -1,7 +1,5 @@
 package lbricks
-import (
-	"github.com/ungerik/go3d/float64/vec2"
-)
+
 
 type StageProvider func(game GameContext) *Stage
 type StageId uint

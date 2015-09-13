@@ -19,7 +19,7 @@ type System struct {
 	eventSystem EventSystem
 }
 
-func (s System) Name()  {
+func (s System) Name() string {
 	return s.name
 }
 
@@ -32,13 +32,13 @@ type RenderSystem struct {
 	*System
 	lock 	*sync.Mutex
 	batch 	*engi.Batch
-	views 	[]Renderer
+	views 	[]Renderable
 	maxlen 	int
 }
 
 func NewRenderSystem(maxlen, width, height int, es EventSystem) *RenderSystem  {
 	rs:= new(RenderSystem)
-	rs.views = make([]Renderer,0, maxlen*2)
+	rs.views = make([]Renderable,0, maxlen*2)
 	rs.maxlen = maxlen
 	rs.lock = new(sync.Mutex)
 	rs.batch = engi.NewBatch(width, height)
@@ -46,7 +46,7 @@ func NewRenderSystem(maxlen, width, height int, es EventSystem) *RenderSystem  {
 	return rs
 }
 
-func (rs *RenderSystem) AddView(view Renderer)  {
+func (rs *RenderSystem) AddView(view Renderable)  {
 	rs.lock.Lock()
 	if len(rs.views) == cap(rs.views) {
 		// Reallocate

@@ -67,8 +67,6 @@ func Setup(input chan *lbricks.SetupEvent) {
 
 	imprimir = "holasss"
 
-
-
 }
 
 

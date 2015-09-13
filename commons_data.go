@@ -1,6 +1,5 @@
 package lbricks
 
-
 type Poolable  interface {
 	Reset()
 }
@@ -9,25 +8,50 @@ type Disposable interface{
 	Dispose()
 }
 
-type Renderer interface {
+type Renderable interface {
 	Render(Batch)
 }
 
-type Positioner interface {
+type Positionable interface {
 	Position() []float32
 }
 
-type Scaler interface {
+type Scalable interface {
 	Scale() []float32
 }
 
+type Rotable interface {
+	Rotation() float32
+}
 
+type Identificable interface {
+	Id() 	uint
+}
+
+type Nombrable interface {
+	Name()	string
+}
+
+type Tagger interface {
+	Tags()	[]string
+}
+
+type Texturizer interface {
+	Texture()	int
+}
 
 type Drawable interface {
-	Texture() int
+	View() (float32, float32, float32, float32)
+}
+
+type Resizable interface {
 	Width() float32
 	Height() float32
-	View() (float32, float32, float32, float32)
+}
+
+type Colour interface {
+	Color() uint32
+	Alpha()	float32
 }
 
 type Batch interface {
@@ -37,29 +61,29 @@ type Batch interface {
 	SetProjection(width, height float32)
 }
 
+type Recognizable interface {
+	Identificable
+	Nombrable
+	Tagger
+}
 
-type Transform interface {
-	Positioner
-	Scaler
-	Rotation() float32
+type Transformer interface {
+	Positionable
+	Scalable
+	Rotable
 }
 
 type View interface {
-	Renderer
-	Transform
+	Renderable
+	Transformer
 	Drawable
-	Id() uint
-	Name() string
+	Recognizable
 	Anchor() []float32
-	Color() uint32
-	Alpha()	float32
 	Layer() uint
-
 }
 
-
 type Sprite struct {
-	Transform Transform
+	Transform Transformer
 	id 		uint
 	Name 	string
 	Anchor   []float32
@@ -70,6 +94,6 @@ type Sprite struct {
 }
 
 func (v *Sprite) Render(batch Batch) {
-	batch.Draw(v.Region, v.Transform.Position[0], v.Transform.Position[1], v.Anchor[0], v.Anchor[1], v.Transform.Scale[0],
-		v.Transform.Scale[1], v.Transform.Rotation, v.Color, v.Alpha)
+	batch.Draw(v.Region, v.Transform.Position()[0], v.Transform.Position()[1], v.Anchor[0], v.Anchor[1], v.Transform.Scale()[0],
+		v.Transform.Scale()[1], v.Transform.Rotation(), v.Color, v.Alpha)
 }

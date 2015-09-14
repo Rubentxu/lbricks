@@ -2,7 +2,7 @@ package lbricks
 
 import (
 	"sync"
-	"github.com/ajhager/engi"
+
 )
 
 
@@ -31,17 +31,17 @@ func (s System) Priority() int {
 type RenderSystem struct {
 	*System
 	lock 	*sync.Mutex
-	batch 	*engi.Batch
+	batch 	Batch
 	views 	[]Renderable
 	maxlen 	int
 }
 
-func NewRenderSystem(maxlen, width, height int, es EventSystem) *RenderSystem  {
+func NewRenderSystem(maxlen int, width, height float32, batch Batch,es EventSystem) *RenderSystem  {
 	rs:= new(RenderSystem)
 	rs.views = make([]Renderable,0, maxlen*2)
 	rs.maxlen = maxlen
 	rs.lock = new(sync.Mutex)
-	rs.batch = engi.NewBatch(width, height)
+	rs.batch = batch
 	rs.eventSystem = es
 	return rs
 }
@@ -50,9 +50,12 @@ func (rs *RenderSystem) AddView(view Renderable)  {
 	rs.lock.Lock()
 	if len(rs.views) == cap(rs.views) {
 		// Reallocate
-		rs.maxlen*=1.1
-		re := make([]View, 0, rs.maxlen)
-		rs.views = append(re, rs.views)
+		rs.maxlen*=2
+		re := make([]Renderable, 0, rs.maxlen)
+		for _, v := range rs.views {
+			re = append(re,v)
+		}
+		rs.views = re
 	}
 	rs.views = append(rs.views, view)
 	rs.lock.Unlock()

@@ -2,7 +2,6 @@ package lbricks
 
 import (
 	"github.com/ungerik/go3d/vec2"
-	"github.com/paked/engi"
 )
 
 // Identity Component
@@ -32,12 +31,12 @@ type Transform struct {
 	rotation float32
 }
 
-func (t *Transform) Position() []float32 {
-	return t.position().([2]float64)
+func (t *Transform) Position() *vec2.T {
+	return t.position
 }
 
-func (t *Transform) Scale() []float32 {
-	return t.scale().([2]float64)
+func (t *Transform) Scale() *vec2.T {
+	return t.scale
 }
 
 func (t *Transform) Rotation() float32 {
@@ -47,12 +46,12 @@ func (t *Transform) Rotation() float32 {
 
 // Color Component
 type Color struct {
-	r, g, b uint32
+	rgb uint32
 	alpha   float32
 }
 
-func (c *Color) Color() (uint32, uint32, uint32) {
-	return c.r, c.g, c.b
+func (c *Color) RGB() uint32 {
+	return c.rgb
 }
 
 func (c *Color) Alpha() float32 {
@@ -67,11 +66,11 @@ type Superficie struct {
 
 type Shape []float32
 
-const (
-	Rect = 		[2]Shape{0,0}
-	Oval = 		[2]Shape{0,0}
-	Square = 	[1]Shape{0}
-	Circle = 	[1]Shape{0}
+var (
+	Rect = 		Shape{0.0,0.0}
+	Oval = 		Shape{0,0}
+	Square = 	Shape{0}
+	Circle = 	Shape{0}
 )
 
 type Direction uint
@@ -98,8 +97,8 @@ type Sprite struct {
 }
 
 func (v *Sprite) Render(batch Batch) {
-	batch.Draw(v, v.Position()[0], v.Position()[1], v.Anchor[0], v.Anchor[1], v.Scale()[0],
-		v.Scale()[1], v.Rotation(), v.Color, v.Alpha)
+	batch.Draw(v.view, v.Position()[0], v.Position()[1], v.Anchor[0], v.Anchor[1], v.Scale()[0],
+		v.Scale()[1], v.Rotation(), v.RGB(), v.Alpha())
 }
 
 func (s *Sprite) Width() float32 {

@@ -1,5 +1,6 @@
 package lbricks
 
+import "github.com/ungerik/go3d/vec2"
 
 
 type Poolable  interface {
@@ -15,11 +16,11 @@ type Renderable interface {
 }
 
 type Positionable interface {
-	Position() []float32
+	Position() *vec2.T
 }
 
 type Scalable interface {
-	Scale() []float32
+	Scale() *vec2.T
 }
 
 type Rotable interface {
@@ -38,23 +39,21 @@ type Tagger interface {
 	Tags() []string
 }
 
-type Drawable interface {
-	View() (float32, float32, float32, float32)
-	Texture() uint
-}
-
 type Displayable interface {
 	Visible() bool
 }
 
-type Resizable interface {
-	Width() float32
-	Height() float32
-}
 
 type Colorize interface {
-	Color() (uint32, uint32, uint32)
+	RGB() uint32
 	Alpha() float32
+}
+
+type Drawable interface {
+	Texture() uint
+	Width() float32
+	Height() float32
+	View() (float32, float32, float32, float32)
 }
 
 type Recognizable interface {
@@ -71,7 +70,7 @@ type Transformer interface {
 
 type Element interface {
 	Colorize
-	Resizable
+	Drawable
 	Shape()  Shape
 	Anchor() [2]float32
 }
@@ -83,7 +82,6 @@ type Layout interface {
 
 type View interface {
 	Transformer
-	Drawable
 	Element
 	Layer() uint
 }

@@ -7,18 +7,12 @@ package engi
 import (
 	"log"
 	"math"
-
+	"github.com/Rubentxu/lbricks"
 	"github.com/ajhager/webgl"
 )
 
 const size = 10000
 
-type Drawable interface {
-	Texture() *webgl.Texture
-	Width() float32
-	Height() float32
-	View() (float32, float32, float32, float32)
-}
 
 type Batch struct {
 	drawing      bool
@@ -124,7 +118,7 @@ func (b *Batch) SetProjection(width, height float32) {
 	b.projY = height / 2
 }
 
-func (b *Batch) Draw(r Drawable, x, y, originX, originY, scaleX, scaleY, rotation float32, color uint32, transparency float32) {
+func (b *Batch) Draw(r lbricks.Drawable, x, y, originX, originY, scaleX, scaleY, rotation float32, color uint32, transparency float32) {
 	if !b.drawing {
 		log.Fatal("Batch.Begin() must be called first")
 	}

@@ -43,7 +43,6 @@ type Displayable interface {
 	Visible() bool
 }
 
-
 type Colorize interface {
 	RGB() uint32
 	Alpha() float32
@@ -77,7 +76,6 @@ type Element interface {
 
 type Layout interface {
 	Direction() Direction
-
 }
 
 type View interface {

@@ -4,8 +4,6 @@ import (
 	"github.com/Rubentxu/lbricks/goflow"
 )
 
-type EventType string
-
 
 /* SensorBase */
 type Sensor struct {

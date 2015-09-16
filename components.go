@@ -2,6 +2,8 @@ package lbricks
 
 import (
 	"github.com/ungerik/go3d/vec2"
+	"github.com/Rubentxu/lbricks/goflow"
+	"fmt"
 )
 
 // Identity Component
@@ -26,6 +28,8 @@ func (i *Identity) Tags() []string {
 
 // Transform Component
 type Transform struct {
+	flow.Component
+	Action           <-chan string // input port
 	position *vec2.T
 	scale    *vec2.T
 	rotation float32
@@ -43,6 +47,10 @@ func (t *Transform) Rotation() float32 {
 	return t.rotation
 }
 
+func (t *Transform) OnAction(action string) {
+	fmt.Printf("Transform action, %s!", action)
+}
+
 
 // Color Component
 type Color struct {
@@ -58,11 +66,6 @@ func (c *Color) Alpha() float32 {
 	return c.alpha
 }
 
-
-// Superficie Component
-type Superficie struct {
-
-}
 
 type Shape []float32
 
@@ -88,7 +91,6 @@ type Sprite struct {
 	Identity
 	Transform
 	Color
-	Superficie
 	Shape
 	view Drawable
 	Anchor 	[2]float32

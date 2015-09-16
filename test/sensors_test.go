@@ -16,7 +16,7 @@ func TestMouseSensor(t *testing.T) {
 	d.MouseEvent = in
 	d.Out = out
 	flow.RunProc(d)
-	for i := 0.0; i < 10000000.0; i++ {
+	for i := 0.0; i < 100000.0; i++ {
 		var ms = lbricks.MouseEvent{float32(i * 2.0), float32(i * 2.0), lbricks.LEFT_BUTTON_UP}
 		in <- &ms
 		i2 := (<-out).(*lbricks.MouseEvent)

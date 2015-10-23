@@ -64,6 +64,16 @@ func (g *EventSystem) RegisterInputChannel(input flow.Port) {
 	}
 }
 
+func  RegisterPort(port chan Event) {
+	g := EventSystem {}
+
+	switch port.(type) {
+	case chan PreloadEvent :
+		g.PreloadEventChannnels = append(g.PreloadEventChannnels, port.(PreloadEvent))
+
+	}
+}
+
 func (g *EventSystem) Preload() {
 	event := &PreloadEvent{}
 	for _, e := range g.PreloadEventChannnels {

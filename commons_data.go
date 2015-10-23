@@ -90,3 +90,18 @@ type Batch interface {
 	End()
 	SetProjection(width, height float32)
 }
+
+type Exception string
+
+type Event interface {
+	Identificable
+	Nombrable
+}
+
+// Signal
+type ISignal interface {
+	Subscribe(f func(e Event)) chan Event
+	OnNext(event Event)
+	OnError(error Exception)
+	OnCompleted()
+}

@@ -70,6 +70,7 @@ func (s *Signal) OnNext(event Event)  {
 
 func (s *Signal) Subscribe(f func(e Event)) chan Event {
 	if s.port == nil { s.port = make(chan Event) }
+
 	go func() {
 		defer s.Dispose()
 		for event := range s.port {

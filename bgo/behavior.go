@@ -62,3 +62,57 @@ func CreateBehaviorTree(title, desc string)  *BehaviorTree {
 	bt.description = desc
 	return bt
 }
+
+
+type Blackboard struct {
+
+
+}
+
+
+type Tick struct {
+	Tree  			BehaviorTree
+	Target 			interface{}
+	Blackboard		Blackboard
+	openNodes		[] BaseNode
+	nodeCount		int
+
+}
+
+func CreateTick()  *Tick {
+	tick := &Tick{}
+	tick.openNodes = make([]BaseNode,0,50)
+	return tick
+}
+
+func (this Tick) enterNode(node BaseNode)  {
+	this.nodeCount++
+	this.openNodes = append(this.openNodes,node)
+}
+
+func (this Tick) closeNode(node BaseNode)  {
+	this.openNodes =  this.openNodes[:len(this.openNodes)-1]
+}
+
+
+
+type BaseNode struct {
+	id 				string
+	name			string
+	category		NodeCategorie
+	title			string
+	description 	string
+
+}
+
+func CreateBaseNode(title, desc string)  *BaseNode {
+	bn := &BaseNode{}
+	bn.id = CreateUUID()
+	bn.title = title
+	bn.description = desc
+	return bn
+}
+
+func (bn *BaseNode) execute(tick Tick)  {
+
+}

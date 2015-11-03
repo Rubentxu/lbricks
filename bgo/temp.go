@@ -1,271 +1,101 @@
-package bgo
+(function() {
+"use strict";
 
-b3.BehaviorTree = b3.Class(null, {
+/
+b3.BaseNode = b3.Class(null, {
 
-/**
- * The tree id, must be unique. By default, created with `b3.createUUID`.
- * @property {String} id
- * @readOnly
-**/
+
 id: null,
-
-/**
- * The tree title.
- * @property {String} title
- * @readonly
-**/
+name: null,
+category: null,
 title: null,
-
-/**
- * Description of the tree.
- * @property {String} description
- * @readonly
-**/
 description: null,
-
-/**
- * A dictionary with (key-value) properties. Useful to define custom
- * variables in the visual editor.
- *
- * @property {Object} properties
- * @readonly
-**/
+parameters: null,
 properties: null,
-
-/**
- * The reference to the root node. Must be an instance of `b3.BaseNode`.
- * @property {BaseNode} root
-**/
-root: null,
-
-/**
- * The reference to the debug instance.
- * @property {Object} debug
-**/
-debug: null,
 
 /**
  * Initialization method.
  * @method initialize
  * @constructor
 **/
-initialize: function() {
+initialize: function(params) {
 this.id          = b3.createUUID();
-this.title       = 'The behavior tree';
-this.description = 'Default description';
+this.title       = this.title || this.name;
+this.description = '';
+this.parameters  = {};
 this.properties  = {};
-this.root        = null;
-this.debug       = null;
 },
 
-/**
- * This method loads a Behavior Tree from a data structure, populating this
- * object with the provided data. Notice that, the data structure must
- * follow the format specified by Behavior3JS. Consult the guide to know
- * more about this format.
- *
- * You probably want to use custom nodes in your BTs, thus, you need to
- * provide the `names` object, in which this method can find the nodes by
- * `names[NODE_NAME]`. This variable can be a namespace or a dictionary,
- * as long as this method can find the node by its name, for example:
- *
- *     //json
- *     ...
- *     'node1': {
- *       'name': MyCustomNode,
- *       'title': ...
- *     }
- *     ...
- *
- *     //code
- *     var bt = new b3.BehaviorTree();
- *     bt.load(data, {'MyCustomNode':MyCustomNode})
- *
- *
- * @method load
- * @param {Object} data The data structure representing a Behavior Tree.
- * @param {Object} [names] A namespace or dict containing custom nodes.
-**/
-load: function(data, names) {
-names = names || {};
 
-this.title       = data.title || this.title;
-this.description = data.description || this.description;
-this.properties  = data.properties || this.properties;
+_execute: function(tick) {
+// ENTER
+this._enter(tick);
 
-var nodes = {};
-var id, spec, node;
-// Create the node list (without connection between them)
-for (id in data.nodes) {
-spec = data.nodes[id];
-var Cls;
-
-if (spec.name in names) {
-// Look for the name in custom nodes
-Cls = names[spec.name];
-} else if (spec.name in b3) {
-// Look for the name in default nodes
-Cls = b3[spec.name];
-} else {
-// Invalid node name
-throw new EvalError('BehaviorTree.load: Invalid node name + "'+
-spec.name+'".');
+// OPEN
+if (!tick.blackboard.get('isOpen', tick.tree.id, this.id)) {
+this._open(tick);
 }
 
-node = new Cls(spec.properties);
-node.id = spec.id || node.id;
-node.title = spec.title || node.title;
-node.description = spec.description || node.description;
-node.properties = spec.properties || node.properties;
+// TICK
+var status = this._tick(tick);
 
-nodes[id] = node;
+// CLOSE
+if (status !== b3.RUNNING) {
+this._close(tick);
 }
 
-// Connect the nodes
-for (id in data.nodes) {
-spec = data.nodes[id];
-node = nodes[id];
+// EXIT
+this._exit(tick);
 
-if (node.category === b3.COMPOSITE && spec.children) {
-for (var i=0; i<spec.children.length; i++) {
-var cid = spec.children[i];
-node.children.push(nodes[cid]);
-}
-} else if (node.category === b3.DECORATOR && spec.child) {
-node.child = nodes[spec.child];
-}
-}
-
-this.root = nodes[data.root];
+return status;
 },
 
-/**
- * This method dump the current BT into a data structure.
- *
- * Note: This method does not record the current node parameters. Thus,
- * it may not be compatible with load for now.
- *
- * @method dump
- * @return {Object} A data object representing this tree.
-**/
-dump: function() {
-var data = {};
-var customNames = [];
 
-data.title        = this.title;
-data.description  = this.description;
-data.root         = (this.root)? this.root.id:null;
-data.properties   = this.properties;
-data.nodes        = {};
-data.custom_nodes = [];
-
-if (!this.root) return data;
-
-var stack = [this.root];
-while (stack.length > 0) {
-var node = stack.pop();
-
-var spec = {};
-spec.id = node.id;
-spec.name = node.name;
-spec.title = node.title;
-spec.description = node.description;
-spec.properties = node.properties;
-spec.parameters = node.parameters;
-
-// verify custom node
-var proto = (node.constructor && node.constructor.prototype);
-var nodeName = (proto && proto.name) || node.name;
-if (!b3[nodeName] && customNames.indexOf(nodeName) < 0) {
-var subdata = {};
-subdata.name = nodeName;
-subdata.title = (proto && proto.title) || node.title;
-subdata.category = node.category;
-
-customNames.push(nodeName);
-data.custom_nodes.push(subdata);
-}
-
-// store children/child
-if (node.category === b3.COMPOSITE && node.children) {
-var children = [];
-for (var i=node.children.length-1; i>=0; i--) {
-children.push(node.children[i].id);
-stack.push(node.children[i]);
-}
-spec.children = children;
-} else if (node.category === b3.DECORATOR && node.child) {
-stack.push(node.child);
-spec.child = node.child.id;
-}
-
-data.nodes[node.id] = spec;
-}
-
-return data;
+_enter: function(tick) {
+tick._enterNode(this);
+this.enter(tick);
 },
 
-/**
- * Propagates the tick signal through the tree, starting from the root.
- *
- * This method receives a target object of any type (Object, Array,
- * DOMElement, whatever) and a `Blackboard` instance. The target object has
- * no use at all for all Behavior3JS components, but surely is important
- * for custom nodes. The blackboard instance is used by the tree and nodes
- * to store execution variables (e.g., last node running) and is obligatory
- * to be a `Blackboard` instance (or an object with the same interface).
- *
- * Internally, this method creates a Tick object, which will store the
- * target and the blackboard objects.
- *
- * Note: BehaviorTree stores a list of open nodes from last tick, if these
- * nodes weren't called after the current tick, this method will close them
- * automatically.
- *
- * @method tick
- * @param {Object} target A target object.
- * @param {Blackboard} blackboard An instance of blackboard object.
- * @return {Constant} The tick signal state.
-**/
-tick: function(target, blackboard) {
-if (!blackboard) {
-throw 'The blackboard parameter is obligatory and must be an ' +
-'instance of b3.Blackboard';
-}
 
-/* CREATE A TICK OBJECT */
-var tick = new b3.Tick();
-tick.debug      = this.debug;
-tick.target     = target;
-tick.blackboard = blackboard;
-tick.tree       = this;
+_open: function(tick) {
+tick._openNode(this);
+tick.blackboard.set('isOpen', true, tick.tree.id, this.id);
+this.open(tick);
+},
 
-/* TICK NODE */
-var state = this.root._execute(tick);
 
-/* CLOSE NODES FROM LAST TICK, IF NEEDED */
-var lastOpenNodes = blackboard.get('openNodes', this.id);
-var currOpenNodes = tick._openNodes.slice(0);
+_tick: function(tick) {
+tick._tickNode(this);
+return this.tick(tick);
+},
 
-// does not close if it is still open in this tick
-var start = 0;
-var i;
-for (i=0; i<Math.min(lastOpenNodes.length, currOpenNodes.length); i++) {
-start = i+1;
-if (lastOpenNodes[i] !== currOpenNodes[i]) {
-break;
-}
-}
 
-// close the nodes
-for (i=lastOpenNodes.length-1; i>=start; i--) {
-lastOpenNodes[i]._close(tick);
-}
+_close: function(tick) {
+tick._closeNode(this);
+tick.blackboard.set('isOpen', false, tick.tree.id, this.id);
+this.close(tick);
+},
 
-/* POPULATE BLACKBOARD */
-blackboard.set('openNodes', currOpenNodes, this.id);
-blackboard.set('nodeCount', tick._nodeCount, this.id);
 
-return state;
-}
+_exit: function(tick) {
+tick._exitNode(this);
+this.exit(tick);
+},
+
+
+enter: function(tick) {},
+
+
+open: function(tick) {},
+
+
+tick: function(tick) {},
+
+
+close: function(tick) {},
+
+
+exit: function(tick) {},
 });
+
+})();

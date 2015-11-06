@@ -3,6 +3,7 @@ package lbricks
 import (
 	"github.com/Rubentxu/lbricks/goflow"
 	"reflect"
+	"github.com/tcard/functional"
 )
 
 
@@ -18,7 +19,11 @@ type EventSystem struct {
 	scrollEventChannels	 	[]chan *ScrollEvent
 	keyEventChannels 		[]chan *KeyEvent
 	typeKeyEventChannels 	[]chan *TypeKeyEvent
+
+	EventChannels 			map[string] [] *func(Event) Event
 }
+
+
 
 func CreateEventSystem(capacity int) *EventSystem  {
 	eventSystem := new(EventSystem)
@@ -63,6 +68,35 @@ func (g *EventSystem) RegisterInputChannel(input flow.Port) {
 		g.typeKeyEventChannels = append(g.typeKeyEventChannels, input.Channel.Interface().(chan *TypeKeyEvent))
 	}
 }
+
+func (es *EventSystem) fromEvent(eventType string ) func( func(event Event) Event) {
+
+	return func(fn func(Event) Event) {
+		es.addEventListener(eventType, func(event Event) Event {
+			return fn(event)
+		})
+	}
+}
+
+
+func (es *EventSystem) addEventListener(eventType string, fn func(Event) Event)  {
+	if _,ok := es.EventChannels[eventType]; !ok {
+		es.EventChannels[eventType] =  make([]func(Event) Event)
+	}
+	es.EventChannels[eventType] = append(es.EventChannels[eventType],fn)
+}
+
+
+type Stream struct {
+	fns   [] func(Event) Event
+}
+
+
+func (s *Stream) Map (fn func (Event) Event) *Stream  {
+		fn()
+}
+
+
 
 func  RegisterPort(port chan Event) {
 	g := EventSystem {}

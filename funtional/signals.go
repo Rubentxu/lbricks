@@ -37,8 +37,21 @@ func (s *Signal) Filter(pred Predicate) Signal {
 	return Signal{c}
 }
 
+func (s *Signal) Reduce( red Reducer, memo interface{}) interface{} {
+	for el := range s.event {
+		memo = red(memo, el)
+	}
+	return memo
+}
 
-func  prueba(s Signal) Signal {
 
-	return s.Map(func (interface{})).Filter().Map()
+func FromValues(els ... interface {}) Signal {
+	c := make(Event)
+	go func () {
+		for _, el := range els {
+			c <- el
+		}
+		close(c)
+	}()
+	return Signal{c}
 }

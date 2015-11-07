@@ -2,7 +2,6 @@ package lbricks
 
 import (
 	"github.com/ungerik/go3d/vec2"
-	"github.com/Rubentxu/lbricks/goflow"
 	"fmt"
 )
 

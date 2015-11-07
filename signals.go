@@ -1,44 +1,48 @@
 package lbricks
+import "fmt"
 
 type Event chan interface{}
-type Predicate func (interface{}) bool
-type Mapper func (interface{}) interface{}
-type MultiMapper func (...interface{}) interface{}
-type Reducer func (memo interface{}, element interface{}) interface{}
-type Subscriber func (interface{})
+type Predicate func(interface{}) bool
+type Mapper func(interface{}) interface{}
+type MultiMapper func(...interface{}) interface{}
+type Reducer func(memo interface{}, element interface{}) interface{}
+type Subscriber func(interface{})
 
 
 type Signal struct {
 	event Event
 }
 
-func (s *Signal)  Map(fn Mapper) Signal {
-	c := make(Event)
+func (s Signal)  Map(fn Mapper) Signal {
+	signal := Signal{make(Event)}
 
-	go func () {
+	go func() {
 		for el := range s.event {
-			c <- fn(el)
+			signal.event <- fn(el)
 		}
-		close(c)
+		fmt.Println("Close chan From Map")
+		close(signal.event)
 	}()
-	return Signal{c}
+	return signal
 }
 
 
-func (s *Signal) Filter(pred Predicate) Signal {
-	c := make(Event)
-	go func () {
+func (s Signal) Filter(pred Predicate) Signal {
+	signal := Signal{make(Event)}
+	go func() {
 		for el := range s.event {
 			if keep := pred(el); keep {
-				c <- el
+				signal.event <- el
 			}
 		}
-		close(c)
+		fmt.Println("Close chan From filter")
+		close(signal.event)
 	}()
-	return Signal{c}
+	return signal
 }
 
-func (s *Signal) Reduce( red Reducer, memo interface{}) interface{} {
+
+func (s Signal) Reduce(red Reducer, memo interface{}) interface{} {
 	for el := range s.event {
 		memo = red(memo, el)
 	}
@@ -46,8 +50,8 @@ func (s *Signal) Reduce( red Reducer, memo interface{}) interface{} {
 }
 
 
-func (s *Signal) Subscribe(fn Subscriber) {
-	go func () {
+func (s Signal) Subscribe(fn Subscriber) {
+	go func() {
 		for el := range s.event {
 			fn(el)
 		}
@@ -56,13 +60,15 @@ func (s *Signal) Subscribe(fn Subscriber) {
 }
 
 
-func FromValues(els ... interface {}) Signal {
+func FromValues(els ... interface{}) Signal {
 	c := make(Event)
-	go func () {
+	go func() {
 		for _, el := range els {
 			c <- el
 		}
+		fmt.Println("Close chan From value")
 		close(c)
 	}()
 	return Signal{c}
 }
+

@@ -96,10 +96,6 @@ type Batch interface {
 
 type Exception string
 
-type Event interface {
-	Identificable
-	Nombrable
-}
 
 // Signal
 type ISignal interface {

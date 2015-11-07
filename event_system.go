@@ -13,7 +13,7 @@ func CreateEventSystem(capacity int) *EventSystem  {
 
 
 func  (es *EventSystem) FromEvent(eventType string) Signal {
-	c := make(Event)
+	c := make(chan interface{})
 	defer close(c)
 	es.addEventListener(eventType, func (el interface{}) { c <- el	})
 	return Signal{c}
@@ -22,7 +22,7 @@ func  (es *EventSystem) FromEvent(eventType string) Signal {
 
 func (es *EventSystem) addEventListener(eventType string, fn func(el interface{}))  {
 	if _,ok := es.eventPort[eventType]; !ok {
-		es.eventPort[eventType] =  make([]func(interface{}))
+		es.eventPort[eventType] =  make([]func(interface{}),0,1)
 	}
 	es.eventPort[eventType] = append(es.eventPort[eventType],fn)
 }

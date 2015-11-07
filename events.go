@@ -35,51 +35,12 @@ type ScrollEvent struct {
 
 // KeyboardEvent
 type KeyEvent struct {
-	base *event
 	Key      Key
 	Modifier Modifier
 	Action   KeyAction
-}
-
-type event struct {
-	id uint
-	name string
 }
 
 type TypeKeyEvent struct {
 	Char rune
 }
 
-func (ke *KeyEvent) ID()  uint {
-	return ke.base.id
-}
-
-
-func (ke *KeyEvent) Name() string {
-	return ke.base.name
-}
-
-
-type Signal struct {
-	port chan Event
-}
-
-func (s *Signal) OnNext(event Event)  {
-	s.port <- event
-}
-
-func (s *Signal) Subscribe(f func(e Event)) chan Event {
-	if s.port == nil { s.port = make(chan Event) }
-
-	go func() {
-		defer s.Dispose()
-		for event := range s.port {
-			f(event)
-		}
-	}()
-	return s.port
-}
-
-func (s *Signal) Dispose()  {
-	close(s.port)
-}

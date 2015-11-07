@@ -28,7 +28,6 @@ func (i *Identity) Tags() []string {
 
 // Transform Component
 type Transform struct {
-	flow.Component
 	Action           <-chan string // input port
 	position *vec2.T
 	scale    *vec2.T

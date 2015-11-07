@@ -154,3 +154,29 @@ func CreateBaseNode(title, desc string)  *BaseNode {
 func (bn *BaseNode) execute(tick Tick)  {
 
 }
+type Status uint16
+
+var (
+	SUCCESS = Status(1)
+	FAILURE = Status(2)
+	RUNNING = Status(3)
+	ERROR 	= Status(4)
+)
+
+type Tree interface {
+	Bind(Node) Node
+	Return(interface{}) Node
+}
+
+type Tick func (interface{}) Status
+
+type Node struct {
+	*Tick
+	Child []Node
+
+}
+
+
+
+
+

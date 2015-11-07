@@ -1,10 +1,11 @@
-package funtional
+package lbricks
 
 type Event chan interface{}
 type Predicate func (interface{}) bool
 type Mapper func (interface{}) interface{}
 type MultiMapper func (...interface{}) interface{}
 type Reducer func (memo interface{}, element interface{}) interface{}
+type Subscriber func (interface{})
 
 
 type Signal struct {
@@ -42,6 +43,16 @@ func (s *Signal) Reduce( red Reducer, memo interface{}) interface{} {
 		memo = red(memo, el)
 	}
 	return memo
+}
+
+
+func (s *Signal) Subscribe(fn Subscriber) {
+	go func () {
+		for el := range s.event {
+			fn(el)
+		}
+	}()
+
 }
 
 

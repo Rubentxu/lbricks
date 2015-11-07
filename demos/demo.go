@@ -1,15 +1,14 @@
 package main
-
 import (
-	"fmt"
 	"github.com/Rubentxu/lbricks/engi"
 	"github.com/Rubentxu/lbricks"
-	"github.com/Rubentxu/lbricks/goflow"
 )
+
+
 
 var (
 	imprimir  string
-	bot   engi.Drawable
+	bot   lbricks.Drawable
 	batch *engi.Batch
 	font  *engi.Font
 	tick  float64
@@ -22,29 +21,13 @@ func main() {
 }
 
 type Game struct {
-	lbricks.Game
+	EventSystem lbricks.EventSystem
 
 }
 
 func (g *Game) InitContext() {
 	g.EventSystem = &lbricks.CreateEventSystem(100)
-	graphPool := lbricks.CreateGraphPool()
-	graphPool.AddProvider("DemoGraph",NewDemoGraphProvider)
-	g.Pool = lbricks.CreateEntityPool(graphPool)
-	g.Pool.AddProvider("DemoEntityProvider",DemoEntityProvider)
 
-	preloadChan := make(chan *lbricks.PreloadEvent)
-	g.EventSystem.RegisterInputChannel(&flow.Port {Port : "PreloadEvent", Channel: preloadChan})
-	go Preload(preloadChan)
-
-	setupChan := make(chan *lbricks.SetupEvent)
-	g.EventSystem.RegisterInputChannel(&flow.Port {Port : "SetupEvent", Channel: setupChan})
-	go Setup(setupChan)
-
-	ports := g.Pool.CreateEntity("DemoEntityProvider")
-	for _, p := range ports {
-		g.EventSystem.RegisterInputChannel(p.Port, p.Channel)
-	}
 }
 
 
@@ -77,36 +60,3 @@ func (g *Game) Render() {
 	batch.End()
 }
 
-// A component that prints its input on screen
-type Printer struct {
-	flow.Component
-	Line <-chan *engi.MouseAction // inport
-
-}
-
-// Prints a line when it gets it
-func (p *Printer) OnLine(ms *lbricks.MouseEvent) {
-	imprimir = fmt.Sprintf("Posicion del MouseX %.f MouseY %.f", ms.PosX, ms.PosY)
-}
-
-func DemoEntityProvider(pool lbricks.GraphPool) *lbricks.Entity{
-	logicG := pool.CreateLogicGraph("DemoGraph")
-	entity := lbricks.NewEntity()
-	entity.AddLogicGraph("DemoGraph",logicG)
-	return entity
-}
-
-func NewDemoGraphProvider() (*flow.Graph) {
-	n := flow.NewGraph().(flow.Graph)
-
-	msensor := lbricks.NewMouseSensor("mouseButtonUp", 1, engi.RIGHT_BUTTON_UP)
-	n.Add(msensor, msensor.Name())
-	n.Add(new(Printer), "printer")
-	n.Connect(msensor.Name(), "Out", "printer", "Line")
-
-	inMouseButtonUp := make([]chan *lbricks.MouseEvent)
-	n.MapInPort("InMouseButtonUp", msensor.Name(), "In")
-	n.SetInPort("InMouseButtonUp", inMouseButtonUp)
-	flow.RunNet(n)
-	return n
-}

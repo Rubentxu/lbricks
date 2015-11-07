@@ -3,7 +3,7 @@ package lbricks
 import "github.com/ungerik/go3d/vec2"
 
 type Typable interface  {
-	Type() .(type)
+	Type()
 
 }
 type Poolable  interface {

@@ -36,7 +36,7 @@ func (s Signal) Filter(pred Predicate) Signal {
 			}
 		}
 		fmt.Println("Close chan From filter")
-		close(signal.event)
+		//close(signal.event)
 	}()
 	return signal
 }

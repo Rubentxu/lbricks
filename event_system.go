@@ -2,33 +2,33 @@ package lbricks
 
 
 type EventSystem struct {
-	eventPort map[string] [] func(interface{})
+	eventPorts map[string] [] func(interface{})
 }
 
 
 func CreateEventSystem(capacity int) *EventSystem  {
 	eventSystem := new(EventSystem)
+	eventSystem.eventPorts = make(map[string] [] func(interface{}))
 	return eventSystem
 }
 
 
 func  (es *EventSystem) FromEvent(eventType string) Signal {
 	c := make(chan interface{})
-	defer close(c)
 	es.addEventListener(eventType, func (el interface{}) { c <- el	})
 	return Signal{c}
 }
 
 
 func (es *EventSystem) addEventListener(eventType string, fn func(el interface{}))  {
-	if _,ok := es.eventPort[eventType]; !ok {
-		es.eventPort[eventType] =  make([]func(interface{}),0,1)
-	}
-	es.eventPort[eventType] = append(es.eventPort[eventType],fn)
+	es.eventPorts[eventType] = append(es.EventPorts(eventType),fn)
 }
 
 
-func (es *EventSystem) EventPort() map[string] [] func(interface{}) {
-	return es.eventPort
+func (es *EventSystem) EventPorts(eventType string) [] func(interface{}) {
+	if _,ok := es.eventPorts[eventType]; !ok {
+		es.eventPorts[eventType] =  make([]func(interface{}),0,1)
+	}
+	return es.eventPorts[eventType]
 }
 

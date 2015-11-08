@@ -2,6 +2,7 @@ package bgo
 
 import (
 	"math/rand"
+	"math"
 )
 
 type Status uint16
@@ -51,7 +52,32 @@ type BehaviorTree struct {
 
 }
 
-func (bt *BehaviorTree) Tick(target interface{}, blackboard interface{})  {
+func (this *BehaviorTree) Tick(target interface{}, blackboard Blackboard)  {
+	tick := CreateTick(target,blackboard)
+	tick.Tree = this
+
+	state := this.root.execute(tick)
+
+	lastOpenNodes := blackboard.get("openNodes", this.id, nil).([]BaseNode)
+	currOpenNodes := tick.openNodes.([]BaseNode)
+
+	start := 0
+
+	for i :=0; i < math.Min(len(lastOpenNodes), len(currOpenNodes)); i++ {
+		start = i+1
+		if lastOpenNodes[i] != currOpenNodes[i] {
+			break
+		}
+	}
+
+	for i := len(lastOpenNodes) - 1; i >= start; i-- {
+		lastOpenNodes[i].close(tick)
+	}
+
+	blackboard.set("openNodes",currOpenNodes, this.id, nil)
+	blackboard.set("nodeCount",tick.nodeCount, this.id, nil)
+
+	return state
 
 }
 
@@ -62,121 +88,5 @@ func CreateBehaviorTree(title, desc string)  *BehaviorTree {
 	bt.description = desc
 	return bt
 }
-
-type TreeMemory struct {
-	nodeMemory     map[string] interface{}
-	openNodes      []BaseNode
-	traversalDepth uint8
-	traversalCycle uint8
-}
-
-type Blackboard struct {
-	baseMemory map[string] interface{}
-	treeMemory map[string] *TreeMemory
-}
-
-func (this *Blackboard) getTreeMemory(treeScope string)  *TreeMemory {
-	elem, ok := this.treeMemory[treeScope]
-	if ok {
-		return elem
-	} else {
-		return &TreeMemory{
-			nodeMemory:map[string] interface{},
-			openNodes: make([] BaseNode,0,30),
-			traversalDepth: 0,
-			traversalCycle: 0,
-		}
-	}
-}
-
-func  (this *Blackboard) getNodeMemory(treeMemory TreeMemory, nodeScope string)  interface{} {
-	memory := treeMemory.nodeMemory;
-	if memory == nil {
-		memory[nodeScope] = struct{}
-	}
-	return memory[nodeScope]
-}
-
-func  (this *Blackboard) getMemory(treeScope, nodeScope string)  interface{} {
-	memory := this.baseMemory;
-	if treeScope != nil {
-		memory = this.getTreeMemory(treeScope)
-		if nodeScope != nil {
-			memory = this.getNodeMemory(memory,nodeScope)
-		}
-	}
-	return memory
-}
-
-type Tick struct {
-	Tree  			BehaviorTree
-	Target 			interface{}
-	Blackboard		Blackboard
-	openNodes		[] BaseNode
-	nodeCount		int
-
-}
-
-func CreateTick()  *Tick {
-	tick := &Tick{}
-	tick.openNodes = make([]BaseNode,0,50)
-	return tick
-}
-
-func (this Tick) enterNode(node BaseNode)  {
-	this.nodeCount++
-	this.openNodes = append(this.openNodes,node)
-}
-
-func (this Tick) closeNode(node BaseNode)  {
-	this.openNodes =  this.openNodes[:len(this.openNodes)-1]
-}
-
-
-
-type BaseNode struct {
-	id 				string
-	name			string
-	category		NodeCategorie
-	title			string
-	description 	string
-
-}
-
-func CreateBaseNode(title, desc string)  *BaseNode {
-	bn := &BaseNode{}
-	bn.id = CreateUUID()
-	bn.title = title
-	bn.description = desc
-	return bn
-}
-
-func (bn *BaseNode) execute(tick Tick)  {
-
-}
-type Status uint16
-
-var (
-	SUCCESS = Status(1)
-	FAILURE = Status(2)
-	RUNNING = Status(3)
-	ERROR 	= Status(4)
-)
-
-type Tree interface {
-	Bind(Node) Node
-	Return(interface{}) Node
-}
-
-type Tick func (interface{}) Status
-
-type Node struct {
-	*Tick
-	Child []Node
-
-}
-
-
-
 
 

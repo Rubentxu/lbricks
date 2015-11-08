@@ -115,19 +115,19 @@ func main() {
 	signal := game.EventSystem.FromEvent("MouseEvent")
 
 	signal.Filter(func(value interface{}) bool {
-		fmt.Println("From Filter ",value)
 		return value.(lbricks.MouseEvent).Action == lbricks.LEFT_BUTTON_DOWN}).
 	Subscribe(func (value interface {}) {
 		on = true
-		fmt.Println("From Subscribe ",value)
+		fmt.Println("From Subscribe True",value)
 	})
 
-	signal.Filter(func(value interface{}) bool {
-		fmt.Println("From Filter ",value)
+	signal2 := game.EventSystem.FromEvent("MouseEvent")
+	signal2.Filter(func(value interface{}) bool {
 		return value.(lbricks.MouseEvent).Action == lbricks.LEFT_BUTTON_UP}).
 	Subscribe(func (value interface {}) {
 		on = false
-		fmt.Println("From Subscribe ",value)
+		fmt.Println("From Subscribe False",value)
+
 	})
 	engi.Open("Botmark", 800, 600, false, game)
 }

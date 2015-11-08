@@ -1,5 +1,4 @@
 package lbricks
-import "fmt"
 
 type Event chan interface{}
 type Predicate func(interface{}) bool
@@ -20,7 +19,6 @@ func (s Signal)  Map(fn Mapper) Signal {
 		for el := range s.event {
 			signal.event <- fn(el)
 		}
-		fmt.Println("Close chan From Map")
 		close(signal.event)
 	}()
 	return signal
@@ -35,8 +33,7 @@ func (s Signal) Filter(pred Predicate) Signal {
 				signal.event <- el
 			}
 		}
-		fmt.Println("Close chan From filter")
-		//close(signal.event)
+		close(signal.event)
 	}()
 	return signal
 }
@@ -66,7 +63,6 @@ func FromValues(els ... interface{}) Signal {
 		for _, el := range els {
 			c <- el
 		}
-		fmt.Println("Close chan From value")
 		close(c)
 	}()
 	return Signal{c}

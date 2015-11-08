@@ -93,16 +93,3 @@ type Batch interface {
 	End()
 	SetProjection(width, height float32)
 }
-
-type Exception string
-
-
-// Signal
-type ISignal interface {
-	Subscribe(f func(e Context)) chan Context
-	OnNext(event Context)
-	OnError(error Exception)
-	OnCompleted()
-}
-
-

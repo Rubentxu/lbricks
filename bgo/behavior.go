@@ -2,7 +2,6 @@ package bgo
 
 import (
 	"math/rand"
-	"math"
 )
 
 type Status uint16
@@ -45,25 +44,25 @@ func CreateUUID() string {
 }
 
 type BehaviorTree struct {
-	id   			string
-	title			string
-	description		string
-	root 			BaseNode
+	Id 				string
+	Title			string
+	Description 	string
+	Root 			BaseNode
 
 }
 
-func (this *BehaviorTree) Tick(target interface{}, blackboard Blackboard)  {
+func (this *BehaviorTree) Tick(target interface{}, blackboard Blackboard) Status {
 	tick := CreateTick(target,blackboard)
 	tick.Tree = this
 
-	state := this.root.execute(tick)
+	state := this.Root.execute(tick)
 
-	lastOpenNodes := blackboard.get("openNodes", this.id, nil).([]BaseNode)
-	currOpenNodes := tick.openNodes.([]BaseNode)
+	lastOpenNodes := blackboard.get("openNodes", this.Id, "").([]*BaseNode)
+	currOpenNodes := tick.openNodes
 
 	start := 0
 
-	for i :=0; i < math.Min(len(lastOpenNodes), len(currOpenNodes)); i++ {
+	for i :=0; i < Min(len(lastOpenNodes), len(currOpenNodes)); i++ {
 		start = i+1
 		if lastOpenNodes[i] != currOpenNodes[i] {
 			break
@@ -74,18 +73,25 @@ func (this *BehaviorTree) Tick(target interface{}, blackboard Blackboard)  {
 		lastOpenNodes[i].close(tick)
 	}
 
-	blackboard.set("openNodes",currOpenNodes, this.id, nil)
-	blackboard.set("nodeCount",tick.nodeCount, this.id, nil)
+	blackboard.set("openNodes",currOpenNodes, this.Id, "")
+	blackboard.set("nodeCount",tick.nodeCount, this.Id, "")
 
 	return state
 
 }
 
+func Min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
+}
+
 func CreateBehaviorTree(title, desc string)  *BehaviorTree {
 	bt := &BehaviorTree{}
-	bt.id = CreateUUID()
-	bt.title = title
-	bt.description = desc
+	bt.Id = CreateUUID()
+	bt.Title = title
+	bt.Description = desc
 	return bt
 }
 

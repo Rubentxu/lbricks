@@ -1,10 +1,10 @@
 package bgo
 
 type Tick struct {
-	Tree  			BehaviorTree
+	Tree  			*BehaviorTree
 	Target 			interface{}
-	Blackboard		Blackboard
-	openNodes		[] BaseNode
+	Blackboard		*Blackboard
+	openNodes		[]*BaseNode
 	nodeCount		int
 
 }

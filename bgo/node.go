@@ -3,30 +3,30 @@ package bgo
 import "time"
 
 type BaseNode struct {
-	id          string
-	name        string
-	category    NodeCategorie
-	title       string
-	description string
+	Id 				string
+	Name 			string
+	Category 		NodeCategorie
+	Title 			string
+	Description 	string
 
 }
 
 func CreateBaseNode(title, desc string) *BaseNode {
 	bn := &BaseNode{}
-	bn.id = CreateUUID()
-	bn.title = title
-	bn.description = desc
+	bn.Id = CreateUUID()
+	bn.Title = title
+	bn.Description = desc
 	return bn
 }
 
 
-func (this *BaseNode) execute(tick Tick) Status {
+func (this *BaseNode) execute(tick *Tick) Status {
 	tick.enterNode(this);
 	this.enter(tick)
 
-	if (!tick.Blackboard.get("isOpen", tick.Tree.id, this.id)) {
+	if (!tick.Blackboard.get("isOpen", tick.Tree.Id, this.Id)) {
 		tick.openNode(this);
-		tick.Blackboard.set("isOpen", true, tick.Tree.id, this.id)
+		tick.Blackboard.set("isOpen", true, tick.Tree.Id, this.Id)
 		this.open(tick)
 
 	}
@@ -36,7 +36,7 @@ func (this *BaseNode) execute(tick Tick) Status {
 
 	if status != RUNNING {
 		tick.closeNode(this)
-		tick.Blackboard.set("isOpen", false, tick.Tree.id, this.id)
+		tick.Blackboard.set("isOpen", false, tick.Tree.Id, this.Id)
 		this.close(tick)
 	}
 
@@ -46,11 +46,11 @@ func (this *BaseNode) execute(tick Tick) Status {
 	return status
 }
 
-func (bn *BaseNode) enter(tick Tick) {}
-func (bn *BaseNode) exit(tick Tick) {}
-func (bn *BaseNode) open(tick Tick) {}
-func (bn *BaseNode) close(tick Tick) {}
-func (bn *BaseNode) tick(tick Tick) Status { return ERROR}
+func (bn *BaseNode) enter(tick *Tick) {}
+func (bn *BaseNode) exit(tick *Tick) {}
+func (bn *BaseNode) open(tick *Tick) {}
+func (bn *BaseNode) close(tick *Tick) {}
+func (bn *BaseNode) tick(tick *Tick) Status { return ERROR}
 
 
 /**
@@ -77,11 +77,11 @@ func (this *Sequence) tick(tick Tick) Status {
 
 func NewSequence(title string,children ...BaseNode) Sequence {
 	sequence := &Sequence{}
-	sequence.id = CreateUUID()
-	sequence.category = COMPOSITE
-	sequence.name = "Sequence"
-	sequence.title = title
-	sequence.description = "The Sequence node ticks its children sequentially until one of them returns `FAILURE`, `RUNNING` or `ERROR`"
+	sequence.Id = CreateUUID()
+	sequence.Category = COMPOSITE
+	sequence.Name = "Sequence"
+	sequence.Title = title
+	sequence.Description = "The Sequence node ticks its children sequentially until one of them returns `FAILURE`, `RUNNING` or `ERROR`"
 	sequence.children = children
 	return sequence
 }
@@ -111,11 +111,11 @@ func (this *Priority) tick(tick Tick) Status {
 
 func NewPriority(title string,children ...BaseNode) Priority {
 	priority := &Priority{}
-	priority.id = CreateUUID()
-	priority.category = COMPOSITE
-	priority.name = "Priority"
-	priority.title = title
-	priority.description = "Priority ticks its children sequentially until one of them returns `SUCCESS`, `RUNNING` or `ERROR`"
+	priority.Id = CreateUUID()
+	priority.Category = COMPOSITE
+	priority.Name = "Priority"
+	priority.Title = title
+	priority.Description = "Priority ticks its children sequentially until one of them returns `SUCCESS`, `RUNNING` or `ERROR`"
 	priority.children = children
 	return priority
 }
@@ -143,10 +143,10 @@ func (this *Wait) tick(tick Tick) Status {
 
 func NewPWait(title string) Wait {
 	wait := &Wait{}
-	wait.id = CreateUUID()
-	wait.category = ACTION
-	wait.name = "Wait"
-	wait.title = title
-	wait.description = "Priority ticks its children sequentially until one of them returns `SUCCESS`, `RUNNING` or `ERROR`"
+	wait.Id = CreateUUID()
+	wait.Category = ACTION
+	wait.Name = "Wait"
+	wait.Title = title
+	wait.Description = "Priority ticks its children sequentially until one of them returns `SUCCESS`, `RUNNING` or `ERROR`"
 	return wait
 }

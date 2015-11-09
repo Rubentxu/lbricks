@@ -8,18 +8,18 @@ import (
 )
 
 type TestNode struct {
-	*bgo.BaseNode
+	bgo.BaseNode
 
 }
 
 func (this *TestNode) tick(tick bgo.Tick) bgo.Status {
-	fmt.Printf("Test Succes %s", this.Id)
+	fmt.Println("Test Succes %s", this.Id)
 	return bgo.SUCCESS
 }
 
-func NewTestNode() TestNode {
+func NewTestNode() *TestNode {
 	wait := &TestNode{}
-	wait.Id = bgo.CreateUUID()
+	wait.SetId(bgo.CreateUUID())
 	wait.Category = bgo.ACTION
 	wait.Name = "TestNode"
 	return wait
@@ -40,5 +40,6 @@ func TestSignal(t *testing.T) {
 
 				)
 
-	tree.Tick("",blackboard)
+	status := tree.Tick("",blackboard)
+	t.Logf("Final status %s",status)
 }

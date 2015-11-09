@@ -20,6 +20,6 @@ func TestSignal(t *testing.T) {
 		fmt.Println("From Subscribe ",value.(int))
 	})
 
-	time.Sleep(time.Nanosecond * 100000)
+	time.Sleep(time.Nanosecond * 10000)
 }
 

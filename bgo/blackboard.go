@@ -1,67 +1,60 @@
 package bgo
 
-type TreeMemory struct {
-	nodeMemory     map[string] interface{}
-	openNodes      []BaseNode
-	traversalDepth uint8
-	traversalCycle uint8
-}
-
 type Blackboard struct {
 	baseMemory map[string] interface{}
-	treeMemory map[string] *TreeMemory
+	treeMemory map[string] map[string] interface{}
 }
 
 func CreateBlackboard() *Blackboard {
 	return &Blackboard{
 		baseMemory: make(map[string] interface{}),
-		treeMemory: make(map[string]*TreeMemory),
+		treeMemory: make(map[string] map[string] interface{}),
 	}
 }
 
-func (this *Blackboard) getTreeMemory(treeScope string)  *TreeMemory {
+func (this *Blackboard) getTreeMemory(treeScope string)  map[string] interface{} {
 	elem, ok := this.treeMemory[treeScope]
-	if ok {
-		return elem
-	} else {
-		return &TreeMemory{
-			nodeMemory: make(map[string] interface{}),
-			openNodes: make([] BaseNode,0,30),
-			traversalDepth: 0,
-			traversalCycle: 0,
-		}
+	if !ok {
+		treeMemory := make(map[string] interface{})
+		treeMemory["nodeMemory"] = make(map[string] map[string] interface{})
+		treeMemory["openNodes"] = make(map[string] Node)
+		treeMemory["traversalDepth"] = 0
+		treeMemory["traversalCycle"] = 0
+		this.treeMemory[treeScope] = treeMemory
+		elem = treeMemory
 	}
+	return elem
 }
 
-func  (this *Blackboard) getNodeMemory(treeMemory *TreeMemory, nodeScope string)  interface{} {
-	memory := treeMemory.nodeMemory;
+func  (this *Blackboard) getNodeMemory(treeMemory map[string] interface{}, nodeScope string)  ( map[string] interface{},bool) {
+	memory := treeMemory["nodeMemory"].(map[string] map[string] interface{})
 	elem, ok := memory[nodeScope]
-	if ok {
-		return elem
-	} else {
-		return treeMemory
-	}
+	return elem, ok
 }
 
-func  (this *Blackboard) getMemory(treeScope, nodeScope string)  interface{} {
+func  (this *Blackboard) getMemory(treeScope, nodeScope string)  map[string] interface{} {
 	memory := this.baseMemory;
-	if nodeScope !="" {
-		memory2 := this.getTreeMemory(treeScope)
+	if treeScope !="" {
+		memory := this.getTreeMemory(treeScope)
 		if nodeScope !="" {
-			return this.getNodeMemory(memory2,nodeScope)
+			elem, ok :=this.getNodeMemory(memory,nodeScope)
+			if ok {
+				memory = elem
+			}
 		}
-		return memory2
 	}
 	return memory
 }
 
 
-func (this  *Blackboard) get(key, treeScope, nodeScope string)  interface{} {
+func (this  *Blackboard) get(key, treeScope, nodeScope string)  (interface{}, bool) {
 	memory := this.getMemory(treeScope,nodeScope)
-	return memory[key]
+	elem, ok := memory[key]
+	return elem, ok
+
 }
 
-func (this  *Blackboard) set(key string, value interface{}, treeScope, nodeScope string) {
+func (this  *Blackboard) set(key string, value interface{}, treeScope, nodeScope string)  {
 	memory := this.getMemory(treeScope,nodeScope)
 	memory[key] = value
 }

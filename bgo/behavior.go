@@ -1,8 +1,6 @@
 package bgo
 
-import (
-	"math/rand"
-)
+
 
 type Status uint16
 type NodeCategorie uint16
@@ -22,7 +20,7 @@ var (
 
 func CreateUUID() string {
 	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-	const (
+	/*const (
 		letterIdxBits = 6                    // 6 bits to represent a letter index
 		letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
 		letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
@@ -39,38 +37,37 @@ func CreateUUID() string {
 		}
 		cache >>= letterIdxBits
 		remain--
-	}
-	return string(b)
+	}*/
+	return "holas"
 }
 
 type BehaviorTree struct {
 	Id 				string
 	Title			string
 	Description 	string
-	Root 			BaseNode
+	Root 			Node
 
 }
 
-func (this *BehaviorTree) Tick(target interface{}, blackboard Blackboard) Status {
+func (this *BehaviorTree) Tick(target interface{}, blackboard *Blackboard) Status {
 	tick := CreateTick(target,blackboard)
 	tick.Tree = this
 
 	state := this.Root.execute(tick)
 
-	lastOpenNodes := blackboard.get("openNodes", this.Id, "").([]*BaseNode)
+	var lastOpenNodes map[string] Node
+	if nodes, ok := blackboard.get("openNodes", this.Id, "");ok {
+		lastOpenNodes = nodes.(map[string] Node)
+	}
 	currOpenNodes := tick.openNodes
 
-	start := 0
 
-	for i :=0; i < Min(len(lastOpenNodes), len(currOpenNodes)); i++ {
-		start = i+1
-		if lastOpenNodes[i] != currOpenNodes[i] {
-			break
+	for _,lastNode := range lastOpenNodes {
+		for _,currNode := range currOpenNodes {
+			if lastNode.Id() != currNode.Id() {
+				lastNode.close(tick)
+			}
 		}
-	}
-
-	for i := len(lastOpenNodes) - 1; i >= start; i-- {
-		lastOpenNodes[i].close(tick)
 	}
 
 	blackboard.set("openNodes",currOpenNodes, this.Id, "")
@@ -80,12 +77,7 @@ func (this *BehaviorTree) Tick(target interface{}, blackboard Blackboard) Status
 
 }
 
-func Min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
-}
+
 
 func CreateBehaviorTree(title, desc string)  *BehaviorTree {
 	bt := &BehaviorTree{}

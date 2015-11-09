@@ -2,8 +2,17 @@ package bgo
 
 import "time"
 
+type Node interface {
+	Id() 				string
+	execute(tick *Tick) Status
+	enter(tick *Tick)
+	open(tick *Tick)
+	close(tick *Tick)
+	tick(tick *Tick) Status
+}
+
 type BaseNode struct {
-	Id 				string
+	id 				string
 	Name 			string
 	Category 		NodeCategorie
 	Title 			string
@@ -13,20 +22,28 @@ type BaseNode struct {
 
 func CreateBaseNode(title, desc string) *BaseNode {
 	bn := &BaseNode{}
-	bn.Id = CreateUUID()
+	bn.id = CreateUUID()
 	bn.Title = title
 	bn.Description = desc
 	return bn
 }
 
+func (this *BaseNode) Id() string{
+	return this.id
+}
+
+
+func (this *BaseNode) SetId(id string) {
+	 this.id = id
+}
 
 func (this *BaseNode) execute(tick *Tick) Status {
 	tick.enterNode(this);
 	this.enter(tick)
 
-	if (!tick.Blackboard.get("isOpen", tick.Tree.Id, this.Id)) {
+	if _, ok := tick.Blackboard.get("isOpen", tick.Tree.Id, this.id); ok {
 		tick.openNode(this);
-		tick.Blackboard.set("isOpen", true, tick.Tree.Id, this.Id)
+		tick.Blackboard.set("isOpen", true, tick.Tree.Id, this.id)
 		this.open(tick)
 
 	}
@@ -36,7 +53,7 @@ func (this *BaseNode) execute(tick *Tick) Status {
 
 	if status != RUNNING {
 		tick.closeNode(this)
-		tick.Blackboard.set("isOpen", false, tick.Tree.Id, this.Id)
+		tick.Blackboard.set("isOpen", false, tick.Tree.Id, this.id)
 		this.close(tick)
 	}
 
@@ -59,11 +76,11 @@ func (bn *BaseNode) tick(tick *Tick) Status { return ERROR}
    * success state, the sequence also returns `SUCCESS`.
   **/
 type Sequence struct {
-	*BaseNode
-	children []*BaseNode
+	BaseNode
+	children []Node
 }
 
-func (this *Sequence) tick(tick Tick) Status {
+func (this *Sequence) tick(tick *Tick) Status {
 	for i := 0; i < len(this.children); i++ {
 		status := this.children[i].execute(tick);
 
@@ -75,9 +92,9 @@ func (this *Sequence) tick(tick Tick) Status {
 
 }
 
-func NewSequence(title string,children ...BaseNode) Sequence {
+func NewSequence(title string,children ...Node) *Sequence {
 	sequence := &Sequence{}
-	sequence.Id = CreateUUID()
+	sequence.id = CreateUUID()
 	sequence.Category = COMPOSITE
 	sequence.Name = "Sequence"
 	sequence.Title = title
@@ -93,11 +110,11 @@ func NewSequence(title string,children ...BaseNode) Sequence {
    * the priority also returns `FAILURE`.
 **/
 type Priority struct {
-	*BaseNode
-	children []*BaseNode
+	BaseNode
+	children []Node
 }
 
-func (this *Priority) tick(tick Tick) Status {
+func (this *Priority) tick(tick *Tick) Status {
 	for i := 0; i < len(this.children); i++ {
 		status := this.children[i].execute(tick);
 
@@ -109,9 +126,9 @@ func (this *Priority) tick(tick Tick) Status {
 
 }
 
-func NewPriority(title string,children ...BaseNode) Priority {
+func NewPriority(title string,children ...Node) *Priority {
 	priority := &Priority{}
-	priority.Id = CreateUUID()
+	priority.id = CreateUUID()
 	priority.Category = COMPOSITE
 	priority.Name = "Priority"
 	priority.Title = title
@@ -124,26 +141,26 @@ func NewPriority(title string,children ...BaseNode) Priority {
    * Wait a few seconds.
   **/
 type Wait struct {
-	*BaseNode
-	endTime chan time.Time
-	delay	int16
+	BaseNode
+	endTime <-chan time.Time
+	delay	int64
 }
 
-func (this *Wait) open(tick Tick) {
-	this.endTime = time.Tick(this.delay * time.Millisecond)
+func (this *Wait) open(tick *Tick) {
+	t := time.Duration(this.delay) * time.Millisecond
+	this.endTime = time.Tick(t)
 }
 
 func (this *Wait) tick(tick Tick) Status {
 	for range this.endTime {
-		close(this.endTime)
 		return SUCCESS
 	}
 	return RUNNING
 }
 
-func NewPWait(title string) Wait {
+func NewPWait(title string) *Wait {
 	wait := &Wait{}
-	wait.Id = CreateUUID()
+	wait.id = CreateUUID()
 	wait.Category = ACTION
 	wait.Name = "Wait"
 	wait.Title = title

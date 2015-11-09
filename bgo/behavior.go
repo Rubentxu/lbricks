@@ -1,4 +1,5 @@
 package bgo
+import "math/rand"
 
 
 
@@ -20,7 +21,7 @@ var (
 
 func CreateUUID() string {
 	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-	/*const (
+	const (
 		letterIdxBits = 6                    // 6 bits to represent a letter index
 		letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
 		letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
@@ -37,8 +38,8 @@ func CreateUUID() string {
 		}
 		cache >>= letterIdxBits
 		remain--
-	}*/
-	return "holas"
+	}
+	return string(b)
 }
 
 type BehaviorTree struct {
@@ -50,10 +51,10 @@ type BehaviorTree struct {
 }
 
 func (this *BehaviorTree) Tick(target interface{}, blackboard *Blackboard) Status {
-	tick := CreateTick(target,blackboard)
+	tick := CreateContext(target,blackboard)
 	tick.Tree = this
 
-	state := this.Root.execute(tick)
+	state := Execute(this.Root,tick)
 
 	var lastOpenNodes map[string] Node
 	if nodes, ok := blackboard.get("openNodes", this.Id, "");ok {
@@ -65,7 +66,7 @@ func (this *BehaviorTree) Tick(target interface{}, blackboard *Blackboard) Statu
 	for _,lastNode := range lastOpenNodes {
 		for _,currNode := range currOpenNodes {
 			if lastNode.Id() != currNode.Id() {
-				lastNode.close(tick)
+				lastNode.Close(tick)
 			}
 		}
 	}

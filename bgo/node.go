@@ -41,7 +41,7 @@ func (bn *BaseNode) Open(context *Context) {}
 func (bn *BaseNode) Close(context *Context) {}
 func (bn *BaseNode) Tick(context *Context) Status {
 	fmt.Println("Test Context BaseNode  %s", bn.ID)
-	return ERROR
+	return FAILURE
 }
 
 func Execute(this Node, context *Context) Status {

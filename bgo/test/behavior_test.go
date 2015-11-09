@@ -13,15 +13,16 @@ type TestNode struct {
 }
 
 func (this *TestNode) Tick(context *bgo.Context) bgo.Status {
-	fmt.Println("Test Succes %s", this.Id)
+	fmt.Println("Test Succes %s", this.Title)
 	return bgo.SUCCESS
 }
 
-func NewTestNode() *TestNode {
+func NewTestNode(title string) *TestNode {
 	wait := &TestNode{}
 	wait.ID = bgo.CreateUUID()
 	wait.Category = bgo.ACTION
 	wait.Name = "TestNode"
+	wait.Title = title
 	return wait
 }
 
@@ -32,13 +33,15 @@ func TestSignal(t *testing.T) {
 
 
 
-	tree.Root  = bgo.NewPriority("PriorityTest",
-								bgo.NewSequence("SequenceTest",
-												NewTestNode(),
+	tree.Root  = bgo.NewSequence("SequenceTest",
+								bgo.NewPriority("PriorityTest",
 												bgo.CreateBaseNode("base"),
-												NewTestNode()),
+												NewTestNode("Nodo1"),
+												NewTestNode("Nodo2")),
 
-				)
+								NewTestNode("Nodo3"),
+								NewTestNode("Nodo4"))
+
 
 	status := tree.Tick("",blackboard)
 	t.Logf("Final status %s ",status)

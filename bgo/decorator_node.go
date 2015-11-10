@@ -120,13 +120,14 @@ func (this *MaxTime) Tick(context *Context) Status {
 
 }
 
-func NewMaxTime(title string, child Node, duration time.Duration) *MaxTime {
+func NewMaxTime(title string, duration time.Duration, child Node) *MaxTime {
 	maxTime := &MaxTime{}
 	maxTime.ID = CreateUUID()
 	maxTime.Category = DECORATOR
 	maxTime.Name = "MaxTime"
 	maxTime.Title = title
-	maxTime.maxTime = duration
+	maxTime.maxTime = duration * time.Millisecond
+	maxTime.child = child
 	maxTime.Description = "Decorator is the base class for all decorator nodes. Thus, if you want to create new custom decorator nodes, you need to inherit from this class. "
 	return maxTime
 }
@@ -139,7 +140,7 @@ func NewMaxTime(title string, child Node, duration time.Duration) *MaxTime {
 **/
 type Repeater struct {
 	Decorator
-	maxLoop		int8
+	maxLoop		int
 }
 
 func (this *Repeater) Open(context *Context) {
@@ -154,10 +155,10 @@ func (this *Repeater) Tick(context *Context) Status {
 	count ,_:= context.Blackboard.Get("count", context.Tree.Id, this.ID)
 	status := SUCCESS
 
-	for this.maxLoop < 0 || count.(int8) < this.maxLoop {
+	for this.maxLoop < 0 || count.(int) < this.maxLoop {
 		status = ExecuteNode(this.child,context)
 		if status == SUCCESS || status == FAILURE {
-			count =count.(int8) +1
+			count =count.(int) +1
 		} else {
 			break
 		}
@@ -167,13 +168,14 @@ func (this *Repeater) Tick(context *Context) Status {
 
 }
 
-func NewRepeater(title string, child Node, maxLoop int8) *Repeater {
+func NewRepeater(title string, maxLoop int, child Node) *Repeater {
 	repeater := &Repeater{}
 	repeater.ID = CreateUUID()
 	repeater.Category = DECORATOR
 	repeater.Name = "Repeater"
 	repeater.Title = title
 	repeater.maxLoop = maxLoop
+	repeater.child = child
 	repeater.Description = "Decorator is the base class for all decorator nodes. Thus, if you want to create new custom decorator nodes, you need to inherit from this class. "
 	return repeater
 }

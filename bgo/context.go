@@ -9,10 +9,10 @@ type Context struct {
 
 }
 
-func CreateContext(target interface{}, blackboard *Blackboard)  *Context {
+func CreateContext(target interface{})  *Context {
 	context := &Context{}
 	context.Target = target
-	context.Blackboard = blackboard
+	context.Blackboard = CreateBlackboard();
 	context.openNodes = make(map[string]Node)
 	return context
 }

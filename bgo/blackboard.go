@@ -32,7 +32,7 @@ func  (this *Blackboard) getNodeMemory(treeMemory map[string] interface{}, nodeS
 	return elem, ok
 }
 
-func  (this *Blackboard) getMemory(treeScope, nodeScope string)  map[string] interface{} {
+func  (this *Blackboard) GetMemory(treeScope, nodeScope string)  map[string] interface{} {
 	memory := this.baseMemory;
 	if treeScope !="" {
 		memory := this.getTreeMemory(treeScope)
@@ -47,14 +47,14 @@ func  (this *Blackboard) getMemory(treeScope, nodeScope string)  map[string] int
 }
 
 
-func (this  *Blackboard) get(key, treeScope, nodeScope string)  (interface{}, bool) {
-	memory := this.getMemory(treeScope,nodeScope)
+func (this  *Blackboard) Get(key, treeScope, nodeScope string)  (interface{}, bool) {
+	memory := this.GetMemory(treeScope,nodeScope)
 	elem, ok := memory[key]
 	return elem, ok
 
 }
 
-func (this  *Blackboard) set(key string, value interface{}, treeScope, nodeScope string)  {
-	memory := this.getMemory(treeScope,nodeScope)
+func (this  *Blackboard) Set(key string, value interface{}, treeScope, nodeScope string)  {
+	memory := this.GetMemory(treeScope,nodeScope)
 	memory[key] = value
 }

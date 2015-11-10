@@ -3,19 +3,19 @@ import "math/rand"
 
 
 
-type Status uint16
-type NodeCategorie uint16
+type Status string
+type NodeCategorie string
 
 var (
-	SUCCESS = Status(1)
-	FAILURE = Status(2)
-	RUNNING = Status(3)
-	ERROR 	= Status(4)
+	SUCCESS = Status("Succes")
+	FAILURE = Status("Failure")
+	RUNNING = Status("Runnig")
+	ERROR 	= Status("Error")
 
-	COMPOSITE = NodeCategorie(1)
-	DECORATOR = NodeCategorie(2)
-	ACTION	  = NodeCategorie(3)
-	CONDITION = NodeCategorie(4)
+	COMPOSITE = NodeCategorie("Composite")
+	DECORATOR = NodeCategorie("Decorator")
+	ACTION	  = NodeCategorie("Action")
+	CONDITION = NodeCategorie("Condition")
 )
 
 
@@ -50,29 +50,28 @@ type BehaviorTree struct {
 
 }
 
-func (this *BehaviorTree) Tick(target interface{}, blackboard *Blackboard) Status {
-	tick := CreateContext(target,blackboard)
-	tick.Tree = this
+func (this *BehaviorTree) Tick(context *Context) Status {
+	context.Tree = this
 
-	state := Execute(this.Root,tick)
+	state := ExecuteNode(this.Root,context)
 
 	var lastOpenNodes map[string] Node
-	if nodes, ok := blackboard.get("openNodes", this.Id, "");ok {
+	if nodes, ok := context.Blackboard.Get("openNodes", this.Id, "");ok {
 		lastOpenNodes = nodes.(map[string] Node)
 	}
-	currOpenNodes := tick.openNodes
+	currOpenNodes := context.openNodes
 
 
 	for _,lastNode := range lastOpenNodes {
 		for _,currNode := range currOpenNodes {
 			if lastNode.Id() != currNode.Id() {
-				lastNode.Close(tick)
+				lastNode.Close(context)
 			}
 		}
 	}
 
-	blackboard.set("openNodes",currOpenNodes, this.Id, "")
-	blackboard.set("nodeCount",tick.nodeCount, this.Id, "")
+	context.Blackboard.Set("openNodes",currOpenNodes, this.Id, "")
+	context.Blackboard.Set("nodeCount",context.nodeCount, this.Id, "")
 
 	return state
 

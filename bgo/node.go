@@ -42,7 +42,7 @@ func ExecuteNode(node Node, context *Context) Status {
 	context.enterNode(node);
 	node.Enter(context)
 
-	if _, ok := context.Blackboard.Get("isOpen", context.Tree.Id, node.Id()); ok {
+	if _, ok := context.Blackboard.Get("isOpen", context.Tree.Id, node.Id()); !ok {
 		context.openNode(node);
 		context.Blackboard.Set("isOpen", true, context.Tree.Id, node.Id())
 		node.Open(context)

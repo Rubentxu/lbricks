@@ -39,6 +39,7 @@ func NewInverter(title string,child Node) *Inverter {
 	inverter.Category = DECORATOR
 	inverter.Name = "Inverter"
 	inverter.Title = title
+	inverter.child = child
 	inverter.Description = "Decorator is the base class for all decorator nodes. Thus, if you want to create new custom decorator nodes, you need to inherit from this class. "
 	return inverter
 }
@@ -50,7 +51,7 @@ func NewInverter(title string,child Node) *Inverter {
  **/
 type Limiter struct {
 	Decorator
-	maxLoop		int16
+	maxLoop		int
 }
 
 func (this *Limiter) Open(context *Context) {
@@ -64,10 +65,10 @@ func (this *Limiter) Tick(context *Context) Status {
 
 	count,_ := context.Blackboard.Get("count", context.Tree.Id, this.ID)
 
-	if(count.(int16) < this.maxLoop) {
+	if(count.(int) < this.maxLoop) {
 		status := ExecuteNode(this.child,context)
 		if status == SUCCESS || status == FAILURE {
-			context.Blackboard.Set("count", count+1 ,context.Tree.Id, this.ID)
+			context.Blackboard.Set("count", count.(int)+1 ,context.Tree.Id, this.ID)
 		}
 		return status
 	}
@@ -75,13 +76,14 @@ func (this *Limiter) Tick(context *Context) Status {
 
 }
 
-func NewLimiter(title string,child Node, maxLoop int16) *Limiter {
+func NewLimiter(title string, maxLoop int, child Node,) *Limiter {
 	limiter := &Limiter{}
 	limiter.ID = CreateUUID()
 	limiter.Category = DECORATOR
 	limiter.Name = "Limiter"
 	limiter.Title = title
 	limiter.maxLoop = maxLoop
+	limiter.child = child
 	limiter.Description = "Decorator is the base class for all decorator nodes. Thus, if you want to create new custom decorator nodes, you need to inherit from this class. "
 	return limiter
 }
@@ -152,10 +154,10 @@ func (this *Repeater) Tick(context *Context) Status {
 	count ,_:= context.Blackboard.Get("count", context.Tree.Id, this.ID)
 	status := SUCCESS
 
-	for this.maxLoop < 0 || count < this.maxLoop {
+	for this.maxLoop < 0 || count.(int8) < this.maxLoop {
 		status = ExecuteNode(this.child,context)
 		if status == SUCCESS || status == FAILURE {
-			count++
+			count =count.(int8) +1
 		} else {
 			break
 		}

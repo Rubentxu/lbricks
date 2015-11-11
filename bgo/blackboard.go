@@ -1,60 +1,78 @@
 package bgo
 
+import "time"
+
+type Memory struct {
+	Integer				map[string] 	int
+	Float				map[string] 	float32
+	Complex				map[string] 	complex64
+	Byte				map[string] 	byte
+	Rune 				map[string] 	rune
+	Bool				map[string] 	bool
+	String				map[string] 	string
+	Memory				map[string] 	*Memory
+	Time				map[string] 	time.Time
+	ArrayInteger 		map[string] 	[]int
+	ArrayFloat 			map[string] 	[]float32
+	ArrayComplex 		map[string] 	[]complex64
+	ArrayByte 			map[string] 	[]byte
+	ArrayRune 			map[string] 	[]rune
+	ArrayBool 			map[string] 	[]bool
+	ArrayString 		map[string] 	[]string
+	ArrayNode 			map[string] 	[]Node
+}
+
+
+func CreateMemory() *Memory {
+	return &Memory{
+		Integer			:		make(map[string] 	int),
+		Float			:		make(map[string] 	float32),
+		Complex			:		make(map[string] 	complex64),
+		Byte			:		make(map[string] 	byte),
+		Rune 			:		make(map[string] 	rune),
+		Bool			:		make(map[string] 	bool),
+		String			:		make(map[string] 	string),
+		Memory			:		make(map[string] 	*Memory),
+		Time			:		make(map[string] 	time.Time),
+		ArrayInteger	:		make(map[string] 	[]int),
+		ArrayFloat    	:		make(map[string] 	[]float32),
+		ArrayComplex 	:		make(map[string] 	[]complex64),
+		ArrayByte    	:		make(map[string] 	[]byte),
+		ArrayRune    	:		make(map[string] 	[]rune),
+		ArrayBool    	:		make(map[string] 	[]bool),
+		ArrayString    	:		make(map[string] 	[]string),
+		ArrayNode   :			make(map[string] 	[]Node),
+	}
+}
+
 type Blackboard struct {
-	baseMemory map[string] interface{}
-	treeMemory map[string] map[string] interface{}
+	memory *Memory
 }
 
 func CreateBlackboard() *Blackboard {
 	return &Blackboard{
-		baseMemory: make(map[string] interface{}),
-		treeMemory: make(map[string] map[string] interface{}),
+		memory: CreateMemory(),
 	}
 }
 
-func (this *Blackboard) getTreeMemory(treeScope string)  map[string] interface{} {
-	elem, ok := this.treeMemory[treeScope]
+func (this *Blackboard) GetBaseMemory() *Memory {
+	return this.memory
+}
+
+func (this *Blackboard) getMemory(memory *Memory,scope string) *Memory {
+	memory, ok := memory.Memory[scope]
 	if !ok {
-		treeMemory := make(map[string] interface{})
-		treeMemory["nodeMemory"] = make(map[string] map[string] interface{})
-		treeMemory["openNodes"] = make(map[string] Node)
-		treeMemory["traversalDepth"] = 0
-		treeMemory["traversalCycle"] = 0
-		this.treeMemory[treeScope] = treeMemory
-		elem = treeMemory
-	}
-	return elem
-}
-
-func  (this *Blackboard) getNodeMemory(treeMemory map[string] interface{}, nodeScope string)  ( map[string] interface{},bool) {
-	memory := treeMemory["nodeMemory"].(map[string] map[string] interface{})
-	elem, ok := memory[nodeScope]
-	return elem, ok
-}
-
-func  (this *Blackboard) GetMemory(treeScope, nodeScope string)  map[string] interface{} {
-	memory := this.baseMemory;
-	if treeScope !="" {
-		memory := this.getTreeMemory(treeScope)
-		if nodeScope !="" {
-			elem, ok :=this.getNodeMemory(memory,nodeScope)
-			if ok {
-				memory = elem
-			}
-		}
+		memory = CreateMemory()
+		memory.Memory[scope] = memory
 	}
 	return memory
 }
 
-
-func (this  *Blackboard) Get(key, treeScope, nodeScope string)  (interface{}, bool) {
-	memory := this.GetMemory(treeScope,nodeScope)
-	elem, ok := memory[key]
-	return elem, ok
-
+func (this *Blackboard) getTreeMemory(treeScope string) *Memory {
+	return this.getMemory(this.memory,treeScope)
 }
 
-func (this  *Blackboard) Set(key string, value interface{}, treeScope, nodeScope string)  {
-	memory := this.GetMemory(treeScope,nodeScope)
-	memory[key] = value
+func  (this *Blackboard) getNodeMemory( treeScope, nodeScope string) *Memory {
+	treeMemory := this.getTreeMemory(treeScope)
+	return this.getMemory(treeMemory,nodeScope)
 }

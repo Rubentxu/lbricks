@@ -1,9 +1,8 @@
 package bgo
 
 type Context struct {
-	Tree  			*BehaviorTree
+	*BehaviorTree
 	Target 			interface{}
-	Blackboard		*Blackboard
 	openNodes		map[string] Node
 	nodeCount		int
 
@@ -12,7 +11,6 @@ type Context struct {
 func CreateContext(target interface{})  *Context {
 	context := &Context{}
 	context.Target = target
-	context.Blackboard = CreateBlackboard();
 	context.openNodes = make(map[string]Node)
 	return context
 }
@@ -31,3 +29,4 @@ func (this Context) closeNode(node Node)  {
 }
 
 func (this Context) contextNode(node Node) {/* TODO: call debug here*/}
+

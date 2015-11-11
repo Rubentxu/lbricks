@@ -39,12 +39,13 @@ func (bn *BaseNode) Tick(context *Context) Status {
 }
 
 func ExecuteNode(node Node, context *Context) Status {
+	nodeMemory := context.GetNodeMemory(node)
 	context.enterNode(node);
 	node.Enter(context)
 
-	if _, ok := context.Blackboard.Get("isOpen", context.Tree.Id, node.Id()); !ok {
+	if _, ok := nodeMemory.Bool["isOpen"]; !ok {
 		context.openNode(node);
-		context.Blackboard.Set("isOpen", true, context.Tree.Id, node.Id())
+		nodeMemory.Bool["isOpen"] =  true
 		node.Open(context)
 
 	}
@@ -54,7 +55,7 @@ func ExecuteNode(node Node, context *Context) Status {
 
 	if status != RUNNING {
 		context.closeNode(node)
-		context.Blackboard.Set("isOpen", false, context.Tree.Id, node.Id())
+		nodeMemory.Bool["isOpen"]= false
 		node.Close(context)
 	}
 

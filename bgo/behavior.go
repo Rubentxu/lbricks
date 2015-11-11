@@ -47,43 +47,50 @@ type BehaviorTree struct {
 	Title			string
 	Description 	string
 	Root 			Node
+	*Blackboard
 
 }
 
 func (this *BehaviorTree) Tick(context *Context) Status {
-	context.Tree = this
-
+	context.BehaviorTree = this
 	state := ExecuteNode(this.Root,context)
 
-	var lastOpenNodes map[string] Node
-	if nodes, ok := context.Blackboard.Get("openNodes", this.Id, "");ok {
-		lastOpenNodes = nodes.(map[string] Node)
+	var lastOpenNodes []Node
+	if nodes, ok :=this.GetTreeMemory().ArrayNode["openNodes"];ok {
+		lastOpenNodes = nodes
 	}
-	currOpenNodes := context.openNodes
+
+	var openNodes []Node
 
 
-	for _,lastNode := range lastOpenNodes {
-		for _,currNode := range currOpenNodes {
+	for _,currNode := range context.openNodes {
+		openNodes = append(openNodes, currNode)
+		for _,lastNode := range lastOpenNodes {
 			if lastNode.Id() != currNode.Id() {
 				lastNode.Close(context)
 			}
 		}
 	}
-
-	context.Blackboard.Set("openNodes",currOpenNodes, this.Id, "")
-	context.Blackboard.Set("nodeCount",context.nodeCount, this.Id, "")
-
+	this.GetTreeMemory().ArrayNode["openNodes"] = openNodes
+	this.GetTreeMemory().Integer["nodeCount"] = context.nodeCount
 	return state
 
 }
 
+func (this *BehaviorTree) GetTreeMemory() *Memory {
+	return this.getTreeMemory(this.Id)
+}
 
+func  (this *BehaviorTree) GetNodeMemory(node Node) *Memory {
+	return this.getNodeMemory(this.Id, node.Id())
+}
 
-func CreateBehaviorTree(title, desc string)  *BehaviorTree {
+func CreateBehaviorTree(title, desc string,blackboard *Blackboard)  *BehaviorTree {
 	bt := &BehaviorTree{}
 	bt.Id = CreateUUID()
 	bt.Title = title
 	bt.Description = desc
+	bt.Blackboard = blackboard
 	return bt
 }
 

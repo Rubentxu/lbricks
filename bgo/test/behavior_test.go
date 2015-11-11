@@ -12,15 +12,9 @@ type TestNode struct {
 }
 
 func (this *TestNode) Tick(context *bgo.Context) bgo.Status {
-	var statusResponses []bgo.Status
-	elem ,ok := context.Blackboard.Get("StatusResponses",context.Tree.Id, "")
-	if !ok {
-		statusResponses = make([]bgo.Status,0,1)
-	} else {
-		statusResponses = elem.([]bgo.Status)
-	}
-	statusResponses = append(statusResponses,this.statusResponse)
-	context.Blackboard.Set("StatusResponses",statusResponses,context.Tree.Id, "")
+	var statusResponses []string = context.GetTreeMemory.ArrayString["StatusResponses"]
+	statusResponses = append(statusResponses,string(this.statusResponse))
+	context.GetTreeMemory.ArrayString["StatusResponses"] = statusResponses
 	return this.statusResponse
 }
 
@@ -35,7 +29,7 @@ func NewTestNode(title string, statusResponse bgo.Status) *TestNode {
 }
 
 
-func ArrayEquals(a []bgo.Status, b []bgo.Status) bool {
+func ArrayEquals(a []string, b []string) bool {
 	if len(a) != len(b) {
 		return false
 	}
@@ -48,7 +42,8 @@ func ArrayEquals(a []bgo.Status, b []bgo.Status) bool {
 }
 
 func TestSequenceRoot(t *testing.T) {
-	tree := bgo.CreateBehaviorTree("Pruebas", "Test")
+	blackboard :=  bgo.CreateBlackboard()
+	tree := bgo.CreateBehaviorTree("Pruebas", "Test", blackboard)
 	context := bgo.CreateContext("")
 
 	tree.Root  = bgo.NewSequence("SequenceTest",
@@ -62,20 +57,21 @@ func TestSequenceRoot(t *testing.T) {
 
 
 	tree.Tick(context)
-	elem ,_ := context.Blackboard.Get("StatusResponses",context.Tree.Id, "")
-	var expected []bgo.Status = []bgo.Status { bgo.FAILURE,bgo.SUCCESS,bgo.SUCCESS,bgo.SUCCESS }
+	elem ,_ := context.GetTreeMemory.ArrayString["StatusResponses"]
+	expected := []string { "FAILURE","SUCCESS","SUCCESS","SUCCESS" }
 
-	if !ArrayEquals(expected,elem.([]bgo.Status)) {
+	if !ArrayEquals(expected,elem) {
 		t.Error("Error StatusResponses no son iguales a lo experado ", expected)
 	} else {
-		t.Logf("Final status %s \r",elem.([]bgo.Status))
+		t.Logf("Final status %s \r",elem)
 	}
 
 }
 
 
 func TestPriorityRoot(t *testing.T) {
-	tree := bgo.CreateBehaviorTree("Pruebas2", "Test2")
+	blackboard :=  bgo.CreateBlackboard()
+	tree := bgo.CreateBehaviorTree("Pruebas2", "Test2", blackboard)
 	context := bgo.CreateContext("")
 
 	tree.Root  =	bgo.NewPriority("PriorityTest",
@@ -89,13 +85,14 @@ func TestPriorityRoot(t *testing.T) {
 									)
 
 	tree.Tick(context)
-	elem ,_ := context.Blackboard.Get("StatusResponses",context.Tree.Id, "")
-	var expected []bgo.Status = []bgo.Status { bgo.SUCCESS,bgo.FAILURE,bgo.SUCCESS,bgo.SUCCESS }
 
-	if  !ArrayEquals(expected,elem.([]bgo.Status)) {
-		t.Error("Error StatusResponses no son iguales a lo experado",expected)
+	elem ,_ := context.GetTreeMemory.ArrayString["StatusResponses"]
+	expected := []string { "SUCCESS","FAILURE","SUCCESS","SUCCESS" }
+
+	if !ArrayEquals(expected,elem) {
+		t.Error("Error StatusResponses no son iguales a lo experado ", expected)
 	} else {
-		t.Logf("Final status %s \r ",elem.([]bgo.Status))
+		t.Logf("Final status %s \r",elem)
 	}
 
 

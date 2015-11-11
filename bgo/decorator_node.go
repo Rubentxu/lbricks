@@ -55,7 +55,7 @@ type Limiter struct {
 }
 
 func (this *Limiter) Open(context *Context) {
-	context.Blackboard.Set("count", 0 ,context.Tree.Id, this.ID)
+	context.GetNodeMemory(this).Integer["count"] = 0
 }
 
 func (this *Limiter) Tick(context *Context) Status {
@@ -63,12 +63,12 @@ func (this *Limiter) Tick(context *Context) Status {
 		return ERROR
 	}
 
-	count,_ := context.Blackboard.Get("count", context.Tree.Id, this.ID)
+	count := context.GetNodeMemory(this).Integer["count"]
 
-	if(count.(int) < this.maxLoop) {
+	if(count < this.maxLoop) {
 		status := ExecuteNode(this.child,context)
 		if status == SUCCESS || status == FAILURE {
-			context.Blackboard.Set("count", count.(int)+1 ,context.Tree.Id, this.ID)
+			context.GetNodeMemory(this).Integer["count"] =  count+1
 		}
 		return status
 	}
@@ -101,7 +101,7 @@ type MaxTime struct {
 
 func (this *MaxTime) Open(context *Context) {
 	startTime := time.Now()
-	context.Blackboard.Set("starTime", startTime ,context.Tree.Id, this.ID)
+	context.GetNodeMemory(this).Time["starTime"]= startTime
 }
 
 func (this *MaxTime) Tick(context *Context) Status {
@@ -109,10 +109,10 @@ func (this *MaxTime) Tick(context *Context) Status {
 		return ERROR
 	}
 
-	startTime ,_:= context.Blackboard.Get("starTime", context.Tree.Id, this.ID)
+	startTime ,_:= context.GetNodeMemory(this).Time["starTime"]
 	status := ExecuteNode(this.child,context)
 
-	if(time.Since(startTime.(time.Time)) > this.maxTime) {
+	if(time.Since(startTime) > this.maxTime) {
 		return FAILURE
 
 	}
@@ -144,7 +144,7 @@ type Repeater struct {
 }
 
 func (this *Repeater) Open(context *Context) {
-	context.Blackboard.Set("count", 0 ,context.Tree.Id, this.ID)
+	context.GetNodeMemory(this).Integer["count"] = 0
 }
 
 func (this *Repeater) Tick(context *Context) Status {
@@ -152,18 +152,18 @@ func (this *Repeater) Tick(context *Context) Status {
 		return ERROR
 	}
 
-	count ,_:= context.Blackboard.Get("count", context.Tree.Id, this.ID)
+	count ,_:= context.GetNodeMemory(this).Integer["count"]
 	status := SUCCESS
 
-	for this.maxLoop < 0 || count.(int) < this.maxLoop {
+	for this.maxLoop < 0 || count < this.maxLoop {
 		status = ExecuteNode(this.child,context)
 		if status == SUCCESS || status == FAILURE {
-			count =count.(int) +1
+			count =count +1
 		} else {
 			break
 		}
 	}
-	context.Blackboard.Set("count", count, context.Tree.Id, this.ID)
+	context.GetNodeMemory(this).Integer["count"] = count
 	return status
 
 }
@@ -173,6 +173,49 @@ func NewRepeater(title string, maxLoop int, child Node) *Repeater {
 	repeater.ID = CreateUUID()
 	repeater.Category = DECORATOR
 	repeater.Name = "Repeater"
+	repeater.Title = title
+	repeater.maxLoop = maxLoop
+	repeater.child = child
+	repeater.Description = "Decorator is the base class for all decorator nodes. Thus, if you want to create new custom decorator nodes, you need to inherit from this class. "
+	return repeater
+}
+
+
+type RepeatUntilFailure struct {
+	Decorator
+	maxLoop		int
+}
+
+func (this *RepeatUntilFailure) Open(context *Context) {
+	context.GetNodeMemory(this).Integer["count"] = 0
+}
+
+func (this *RepeatUntilFailure) Tick(context *Context) Status {
+	if this.child == nil {
+		return ERROR
+	}
+
+	count ,_:= context.GetNodeMemory(this).Integer["count"]
+	status := ERROR
+
+	for this.maxLoop < 0 || count < this.maxLoop {
+		status = ExecuteNode(this.child,context)
+		if status == SUCCESS {
+			count =count +1
+		} else {
+			break
+		}
+	}
+	context.GetNodeMemory(this).Integer["count"] = count
+	return status
+
+}
+
+func NewRepeatUntilFailure(title string, maxLoop int, child Node) *RepeatUntilFailure {
+	repeater := &RepeatUntilFailure{}
+	repeater.ID = CreateUUID()
+	repeater.Category = DECORATOR
+	repeater.Name = "RepeatUntilFailure"
 	repeater.Title = title
 	repeater.maxLoop = maxLoop
 	repeater.child = child

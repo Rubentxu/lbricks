@@ -12,9 +12,9 @@ type TestNode struct {
 }
 
 func (this *TestNode) Tick(context *bgo.Context) bgo.Status {
-	var statusResponses []string = context.GetTreeMemory.ArrayString["StatusResponses"]
+	var statusResponses []string = context.GetTreeMemory().ArrayString["StatusResponses"]
 	statusResponses = append(statusResponses,string(this.statusResponse))
-	context.GetTreeMemory.ArrayString["StatusResponses"] = statusResponses
+	context.GetTreeMemory().ArrayString["StatusResponses"] = statusResponses
 	return this.statusResponse
 }
 
@@ -57,11 +57,11 @@ func TestSequenceRoot(t *testing.T) {
 
 
 	tree.Tick(context)
-	elem ,_ := context.GetTreeMemory.ArrayString["StatusResponses"]
-	expected := []string { "FAILURE","SUCCESS","SUCCESS","SUCCESS" }
+	elem ,_ := context.GetTreeMemory().ArrayString["StatusResponses"]
+	expected := []string { "Failure","Succes","Succes","Succes" }
 
 	if !ArrayEquals(expected,elem) {
-		t.Error("Error StatusResponses no son iguales a lo experado ", expected)
+		t.Errorf("Error StatusResponses no son iguales a lo experado %s <---> %s", expected,elem)
 	} else {
 		t.Logf("Final status %s \r",elem)
 	}
@@ -86,11 +86,11 @@ func TestPriorityRoot(t *testing.T) {
 
 	tree.Tick(context)
 
-	elem ,_ := context.GetTreeMemory.ArrayString["StatusResponses"]
-	expected := []string { "SUCCESS","FAILURE","SUCCESS","SUCCESS" }
+	elem ,_ := context.GetTreeMemory().ArrayString["StatusResponses"]
+	expected := []string { "Succes","Failure","Succes","Succes" }
 
 	if !ArrayEquals(expected,elem) {
-		t.Error("Error StatusResponses no son iguales a lo experado ", expected)
+		t.Errorf("Error StatusResponses no son iguales a lo experado %s <---> %s", expected,elem)
 	} else {
 		t.Logf("Final status %s \r",elem)
 	}

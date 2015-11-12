@@ -12,9 +12,11 @@ func TestGetInt8(t *testing.T) {
 	blackboard := bgo.CreateBlackboard();
 	baseMemory := blackboard.GetBaseMemory()
 
-	baseMemory.Byte["testBool"] = true
+	baseMemory.Bool["testBool"] = true
+	baseMemory.Bool["testBool2"] = false
 
-	if baseMemory.Byte["testBool"] != true {
+	if baseMemory.Bool["testBool"] != true && baseMemory.Bool["testBool2"] != false {
 		t.Error("Error testBool not true")
 	}
+
 }

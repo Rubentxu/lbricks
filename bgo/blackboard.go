@@ -60,10 +60,10 @@ func (this *Blackboard) GetBaseMemory() *Memory {
 }
 
 func (this *Blackboard) getMemory(memory *Memory,scope string) *Memory {
-	memory, ok := memory.Memory[scope]
+	ms, ok := memory.Memory[scope]
 	if !ok {
-		memory = CreateMemory()
-		memory.Memory[scope] = memory
+		ms = CreateMemory()
+		memory.Memory[scope] = ms
 	}
 	return memory
 }

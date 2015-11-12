@@ -29,4 +29,3 @@ func (this Context) closeNode(node Node)  {
 }
 
 func (this Context) contextNode(node Node) {/* TODO: call debug here*/}
-

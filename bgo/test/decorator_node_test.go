@@ -29,7 +29,8 @@ func NewTestDelayNode(title string, delay time.Duration) *TestDelayNode {
 
 
 func TestInverter(t *testing.T) {
-	tree := bgo.CreateBehaviorTree("Pruebas", "Test")
+	blackboard :=  bgo.CreateBlackboard()
+	tree := bgo.CreateBehaviorTree("Pruebas", "Test",blackboard)
 	context := bgo.CreateContext("")
 	tree.Root = bgo.NewInverter("InveterTest",
 									NewTestNode("Nodo1",bgo.SUCCESS),
@@ -47,7 +48,8 @@ func TestInverter(t *testing.T) {
 
 
 func TestLimiter(t *testing.T) {
-	tree := bgo.CreateBehaviorTree("Pruebas", "Test")
+	blackboard :=  bgo.CreateBlackboard()
+	tree := bgo.CreateBehaviorTree("Pruebas", "Test",blackboard)
 	context := bgo.CreateContext("")
 	tree.Root = bgo.NewLimiter("LimiterTest", 2,
 									NewTestNode("Nodo1",bgo.SUCCESS),
@@ -67,7 +69,8 @@ func TestLimiter(t *testing.T) {
 
 
 func TestMaxTime(t *testing.T) {
-	tree := bgo.CreateBehaviorTree("Pruebas", "Test")
+	blackboard :=  bgo.CreateBlackboard()
+	tree := bgo.CreateBehaviorTree("Pruebas", "Test",blackboard)
 	context := bgo.CreateContext("")
 	tree.Root = bgo.NewMaxTime("MaxTimeTest", 200,
 									NewTestDelayNode("Nodo1",300),
@@ -85,80 +88,84 @@ func TestMaxTime(t *testing.T) {
 
 
 func TestRepeater(t *testing.T) {
-	tree := bgo.CreateBehaviorTree("Pruebas", "Test")
+	blackboard :=  bgo.CreateBlackboard()
+	tree := bgo.CreateBehaviorTree("Pruebas", "Test",blackboard)
 	context := bgo.CreateContext("")
 	tree.Root = bgo.NewRepeater("RepeaterTest", 3,
 									NewTestNode("Nodo1",bgo.FAILURE),
 								)
 
-	status := tree.Tick(context)
+	tree.Tick(context)
 
-	elem ,_ := context.Blackboard.Get("StatusResponses",context.Tree.Id, "")
-	var expected []bgo.Status = []bgo.Status { bgo.FAILURE,bgo.FAILURE,bgo.FAILURE }
+	elem ,_ := context.GetTreeMemory().ArrayString["StatusResponses"]
+	var expected []string = []string {"Failure","Failure","Failure" }
 
-	if  !ArrayEquals(expected,elem.([]bgo.Status)) {
-		t.Errorf("Error StatusResponses no son iguales a lo experado %s, %s",expected,status)
+	if !ArrayEquals(expected,elem) {
+		t.Errorf("Error StatusResponses no son iguales a lo experado %s <---> %s", expected,elem)
 	} else {
-		t.Logf("Final status %s \r ",elem.([]bgo.Status))
+		t.Logf("Final status %s \r",elem)
 	}
 }
 
 
 func TestNotRepeater(t *testing.T) {
-	tree := bgo.CreateBehaviorTree("Pruebas", "Test")
+	blackboard :=  bgo.CreateBlackboard()
+	tree := bgo.CreateBehaviorTree("Pruebas", "Test",blackboard)
 	context := bgo.CreateContext("")
 	tree.Root = bgo.NewRepeater("RepeaterTest", 3,
 		NewTestNode("Nodo1",bgo.RUNNING),
 	)
 
-	status := tree.Tick(context)
+	tree.Tick(context)
 
-	elem ,_ := context.Blackboard.Get("StatusResponses",context.Tree.Id, "")
-	var expected =  []bgo.Status { bgo.RUNNING }
+	elem ,_ := context.GetTreeMemory().ArrayString["StatusResponses"]
+	var expected []string = []string { "Runnig" }
 
-	if  !ArrayEquals(expected,elem.([]bgo.Status)) {
-		t.Errorf("Error StatusResponses no son iguales a lo experado %s, %s",expected,status)
+	if !ArrayEquals(expected,elem) {
+		t.Errorf("Error StatusResponses no son iguales a lo experado %s <---> %s", expected,elem)
 	} else {
-		t.Logf("Final status %s \r ",elem.([]bgo.Status))
+		t.Logf("Final status %s \r",elem)
 	}
 }
 
 
 func TestRepeatUntilFailure(t *testing.T) {
-	tree := bgo.CreateBehaviorTree("Pruebas", "Test")
+	blackboard :=  bgo.CreateBlackboard()
+	tree := bgo.CreateBehaviorTree("Pruebas", "Test",blackboard)
 	context := bgo.CreateContext("")
 	tree.Root = bgo.NewRepeatUntilFailure("RepeatUntilFailureTest", 3,
 										NewTestNode("Nodo1",bgo.SUCCESS),
 										)
 
-	status := tree.Tick(context)
+	tree.Tick(context)
 
-	elem ,_ := context.Blackboard.Get("StatusResponses",context.Tree.Id, "")
-	var expected []bgo.Status = []bgo.Status { bgo.SUCCESS,bgo.SUCCESS,bgo.SUCCESS }
+	elem ,_ := context.GetTreeMemory().ArrayString["StatusResponses"]
+	var expected []string = []string { "Succes","Succes","Succes" }
 
-	if  !ArrayEquals(expected,elem.([]bgo.Status)) {
-		t.Errorf("Error StatusResponses no son iguales a lo experado %s, %s",expected,status)
+	if !ArrayEquals(expected,elem) {
+		t.Errorf("Error StatusResponses no son iguales a lo experado %s <---> %s", expected,elem)
 	} else {
-		t.Logf("Final status %s \r ",elem.([]bgo.Status))
+		t.Logf("Final status %s \r",elem)
 	}
 }
 
 
 func TestNotRepeatUntilFailure(t *testing.T) {
-	tree := bgo.CreateBehaviorTree("Pruebas", "Test")
+	blackboard :=  bgo.CreateBlackboard()
+	tree := bgo.CreateBehaviorTree("Pruebas", "Test",blackboard)
 	context := bgo.CreateContext("")
 	tree.Root = bgo.NewRepeatUntilFailure("RepeatUntilFailureTest", 3,
 		NewTestNode("Nodo1",bgo.FAILURE),
 	)
 
-	status := tree.Tick(context)
+	tree.Tick(context)
 
-	elem ,_ := context.Blackboard.Get("StatusResponses",context.Tree.Id, "")
-	var expected []bgo.Status = []bgo.Status { bgo.FAILURE }
+	elem ,_ := context.GetTreeMemory().ArrayString["StatusResponses"]
+	var expected []string = []string { "Failure" }
 
-	if  !ArrayEquals(expected,elem.([]bgo.Status)) {
-		t.Errorf("Error StatusResponses no son iguales a lo experado %s, %s",expected,status)
+	if !ArrayEquals(expected,elem) {
+		t.Errorf("Error StatusResponses no son iguales a lo experado %s <---> %s", expected,elem)
 	} else {
-		t.Logf("Final status %s \r ",elem.([]bgo.Status))
+		t.Logf("Final status %s \r",elem)
 	}
 }

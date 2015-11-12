@@ -59,7 +59,7 @@ func TestSequenceRoot(t *testing.T) {
 
 	tree.Tick(context)
 	elem ,_ := context.GetContextMemory().ArrayString["StatusResponses"]
-	expected := []string { "Failure","Succes","Succes","Succes" }
+	expected := []string { "Failure","Success","Success","Success" }
 
 	if !ArrayEquals(expected,elem) {
 		t.Errorf("Error StatusResponses no son iguales a lo experado %s <---> %s", expected,elem)
@@ -93,7 +93,7 @@ func TestNSequenceRoot(t *testing.T) {
 	elem ,_ := context.GetContextMemory().ArrayString["StatusResponses"]
 	elem2 ,_ := context2.GetContextMemory().ArrayString["StatusResponses"]
 	elem3 ,_ := context3.GetContextMemory().ArrayString["StatusResponses"]
-	expected := []string { "Failure","Succes","Succes","Succes" }
+	expected := []string { "Failure","Success","Success","Success" }
 
 	if !ArrayEquals(expected,elem) && !ArrayEquals(expected,elem2) && !ArrayEquals(expected,elem3){
 		t.Errorf("Error StatusResponses no son iguales a lo experado %s <--->%s -- %s -- %s \r",
@@ -123,7 +123,7 @@ func TestPriorityRoot(t *testing.T) {
 	tree.Tick(context)
 
 	elem ,_ := context.GetContextMemory().ArrayString["StatusResponses"]
-	expected := []string { "Succes","Failure","Succes","Succes" }
+	expected := []string { "Success","Failure","Success","Success" }
 
 	if !ArrayEquals(expected,elem) {
 		t.Errorf("Error StatusResponses no son iguales a lo experado %s <---> %s", expected,elem)
@@ -160,7 +160,7 @@ func TestNPriorityRoot(t *testing.T) {
 	elem2 ,_ := context2.GetContextMemory().ArrayString["StatusResponses"]
 	elem3 ,_ := context3.GetContextMemory().ArrayString["StatusResponses"]
 
-	expected := []string { "Succes","Failure","Succes","Succes" }
+	expected := []string { "Success","Failure","Success","Success" }
 
 	if !ArrayEquals(expected,elem) && !ArrayEquals(expected,elem2) && !ArrayEquals(expected,elem3){
 		t.Errorf("Error StatusResponses no son iguales a lo experado %s <--->%s -- %s -- %s \r",

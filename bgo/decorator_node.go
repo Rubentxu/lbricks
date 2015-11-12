@@ -222,3 +222,47 @@ func NewRepeatUntilFailure(title string, maxLoop int, child Node) *RepeatUntilFa
 	repeater.Description = "Decorator is the base class for all decorator nodes. Thus, if you want to create new custom decorator nodes, you need to inherit from this class. "
 	return repeater
 }
+
+
+
+type RepeatUntilSuccess struct {
+	Decorator
+	maxLoop		int
+}
+
+func (this *RepeatUntilSuccess) Open(context *Context) {
+	context.GetNodeMemory(this).Integer["count"] = 0
+}
+
+func (this *RepeatUntilSuccess) Tick(context *Context) Status {
+	if this.child == nil {
+		return ERROR
+	}
+
+	count ,_:= context.GetNodeMemory(this).Integer["count"]
+	status := ERROR
+
+	for this.maxLoop < 0 || count < this.maxLoop {
+		status = ExecuteNode(this.child,context)
+		if status == FAILURE {
+			count =count +1
+		} else {
+			break
+		}
+	}
+	context.GetNodeMemory(this).Integer["count"] = count
+	return status
+
+}
+
+func NewRepeatUntilSuccess(title string, maxLoop int, child Node) *RepeatUntilSuccess {
+	repeater := &RepeatUntilSuccess{}
+	repeater.ID = CreateUUID()
+	repeater.Category = DECORATOR
+	repeater.Name = "RepeatUntilSuccess"
+	repeater.Title = title
+	repeater.maxLoop = maxLoop
+	repeater.child = child
+	repeater.Description = "Decorator is the base class for all decorator nodes. Thus, if you want to create new custom decorator nodes, you need to inherit from this class. "
+	return repeater
+}

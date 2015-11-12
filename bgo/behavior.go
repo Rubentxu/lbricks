@@ -7,7 +7,7 @@ type Status string
 type NodeCategorie string
 
 var (
-	SUCCESS = Status("Succes")
+	SUCCESS = Status("Success")
 	FAILURE = Status("Failure")
 	RUNNING = Status("Runnig")
 	ERROR 	= Status("Error")

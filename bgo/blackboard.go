@@ -65,14 +65,14 @@ func (this *Blackboard) getMemory(memory *Memory,scope string) *Memory {
 		ms = CreateMemory()
 		memory.Memory[scope] = ms
 	}
-	return memory
+	return ms
 }
 
 func (this *Blackboard) getTreeMemory(treeScope string) *Memory {
 	return this.getMemory(this.memory,treeScope)
 }
 
-func  (this *Blackboard) getNodeMemory( treeScope, nodeScope string) *Memory {
+func  (this *Blackboard) getExtendMemory( treeScope, extendScope string) *Memory {
 	treeMemory := this.getTreeMemory(treeScope)
-	return this.getMemory(treeMemory,nodeScope)
+	return this.getMemory(treeMemory,extendScope)
 }

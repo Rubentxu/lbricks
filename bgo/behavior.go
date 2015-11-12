@@ -82,8 +82,9 @@ func (this *BehaviorTree) GetTreeMemory() *Memory {
 }
 
 func  (this *BehaviorTree) GetNodeMemory(node Node) *Memory {
-	return this.getNodeMemory(this.Id, node.Id())
+	return this.getExtendMemory(this.Id, node.Id())
 }
+
 
 func CreateBehaviorTree(title, desc string,blackboard *Blackboard)  *BehaviorTree {
 	bt := &BehaviorTree{}

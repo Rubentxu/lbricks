@@ -97,7 +97,7 @@ func TestRepeater(t *testing.T) {
 
 	tree.Tick(context)
 
-	elem ,_ := context.GetTreeMemory().ArrayString["StatusResponses"]
+	elem ,_ := context.GetContextMemory().ArrayString["StatusResponses"]
 	var expected []string = []string {"Failure","Failure","Failure" }
 
 	if !ArrayEquals(expected,elem) {
@@ -118,7 +118,7 @@ func TestNotRepeater(t *testing.T) {
 
 	tree.Tick(context)
 
-	elem ,_ := context.GetTreeMemory().ArrayString["StatusResponses"]
+	elem ,_ := context.GetContextMemory().ArrayString["StatusResponses"]
 	var expected []string = []string { "Runnig" }
 
 	if !ArrayEquals(expected,elem) {
@@ -139,7 +139,7 @@ func TestRepeatUntilFailure(t *testing.T) {
 
 	tree.Tick(context)
 
-	elem ,_ := context.GetTreeMemory().ArrayString["StatusResponses"]
+	elem ,_ := context.GetContextMemory().ArrayString["StatusResponses"]
 	var expected []string = []string { "Succes","Succes","Succes" }
 
 	if !ArrayEquals(expected,elem) {
@@ -160,7 +160,7 @@ func TestNotRepeatUntilFailure(t *testing.T) {
 
 	tree.Tick(context)
 
-	elem ,_ := context.GetTreeMemory().ArrayString["StatusResponses"]
+	elem ,_ := context.GetContextMemory().ArrayString["StatusResponses"]
 	var expected []string = []string { "Failure" }
 
 	if !ArrayEquals(expected,elem) {
